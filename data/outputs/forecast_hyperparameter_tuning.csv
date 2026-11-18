@@ -1,0 +1,117 @@
+target,model,params,valid_wape,selected,split,granularity
+orders,moving_average,window=4,0.5269551553245497,False,pre_break,W
+orders,moving_average,window=8,0.5051825214553366,False,pre_break,W
+orders,moving_average,window=13,0.49885168620814696,True,pre_break,W
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.5158358425710651,False,pre_break,W
+orders,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.5083289566505572,False,pre_break,W
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.5169341928849537,False,pre_break,W
+orders,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.507628402008938,True,pre_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 378}",0.5117694926253976,False,pre_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 394}",0.5147438854029543,False,pre_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 218}",0.5136878207793342,False,pre_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 143}",0.5147143817224958,False,pre_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 407}",0.5084030450506692,False,pre_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 409}",0.5082187788513931,True,pre_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 332}",0.5111282353715967,False,pre_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 419}",0.5112893423788266,False,pre_break,W
+units,moving_average,window=4,0.6027929557705087,False,pre_break,W
+units,moving_average,window=8,0.5765109281547663,False,pre_break,W
+units,moving_average,window=13,0.570345736372466,True,pre_break,W
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.5830813099977363,False,pre_break,W
+units,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.5692583550384454,False,pre_break,W
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.583003028011817,False,pre_break,W
+units,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.5667049467214242,True,pre_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 252}",0.5709728602302626,False,pre_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 235}",0.5728709789894272,False,pre_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 220}",0.5710577814750588,False,pre_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 141}",0.5710355466481881,False,pre_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 341}",0.5654577070914959,False,pre_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 341}",0.5653727651789442,True,pre_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 289}",0.5697874091796669,False,pre_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 339}",0.5700578164937251,False,pre_break,W
+orders,moving_average,window=4,0.5401474318325935,False,post_break,W
+orders,moving_average,window=8,0.5171607482561826,False,post_break,W
+orders,moving_average,window=13,0.5119750256085069,True,post_break,W
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.5288143759338276,False,post_break,W
+orders,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.5216631344704152,False,post_break,W
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.5296531992577543,False,post_break,W
+orders,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.5173390097592627,True,post_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 229}",0.5224540279853378,False,post_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 356}",0.5181801769759603,False,post_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 226}",0.5217235603705804,False,post_break,W
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 205}",0.516570563594053,False,post_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 261}",0.5196471867129707,False,post_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 261}",0.5198274791381247,False,post_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 318}",0.516428186075104,True,post_break,W
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 401}",0.5170706152826189,False,post_break,W
+units,moving_average,window=4,0.6014543114543115,False,post_break,W
+units,moving_average,window=8,0.5872007722007722,False,post_break,W
+units,moving_average,window=13,0.5805623205623206,True,post_break,W
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.6124366308614573,False,post_break,W
+units,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.5939142279509411,False,post_break,W
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.6148287357242923,False,post_break,W
+units,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.5892459123201336,True,post_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 452}",0.5815053587415504,False,post_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 405}",0.582139190983895,False,post_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 198}",0.5840410589473741,False,post_break,W
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 114}",0.5840409693785462,False,post_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 389}",0.5769574804061322,True,post_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 389}",0.5769825486553068,False,post_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 208}",0.5841002170958267,False,post_break,W
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 213}",0.5843548144505598,False,post_break,W
+orders,moving_average,window=3,0.28125385659632235,False,pre_break,M
+orders,moving_average,window=6,0.27140153852482624,True,pre_break,M
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.27082684774938853,False,pre_break,M
+orders,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.33499395661166137,False,pre_break,M
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.2648989196408246,True,pre_break,M
+orders,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.33442833927126964,False,pre_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 183}",0.264774990051628,False,pre_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 221}",0.2642319718106623,False,pre_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 179}",0.2642546724084423,False,pre_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 140}",0.26472262808839053,False,pre_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 476}",0.26242071408357764,True,pre_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 467}",0.2627360633140315,False,pre_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 478}",0.2641593175222443,False,pre_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 408}",0.2651428018129859,False,pre_break,M
+units,moving_average,window=3,0.3405028038086636,False,pre_break,M
+units,moving_average,window=6,0.31941465005707975,True,pre_break,M
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.3193255128949868,False,pre_break,M
+units,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.3813324633818207,False,pre_break,M
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.3120275170724809,True,pre_break,M
+units,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.38040288429627084,False,pre_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 145}",0.3163765055572196,False,pre_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 221}",0.312309042483502,False,pre_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 92}",0.3189631424420016,False,pre_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 140}",0.31394284632508257,False,pre_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 470}",0.3053899492567517,False,pre_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 457}",0.3050659518048337,True,pre_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 406}",0.3109906661214811,False,pre_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 353}",0.3116427008921334,False,pre_break,M
+orders,moving_average,window=3,0.28501595142533703,False,post_break,M
+orders,moving_average,window=6,0.2679067613460945,True,post_break,M
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.26824642487781347,True,post_break,M
+orders,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.3365574246290326,False,post_break,M
+orders,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.26879790856853025,False,post_break,M
+orders,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.33350164171461655,False,post_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 159}",0.2734840335706827,False,post_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 221}",0.270968533028751,False,post_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 127}",0.27719705161276553,False,post_break,M
+orders,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 159}",0.2729213678080493,False,post_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 462}",0.2701249052794876,True,post_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 460}",0.27029316145702437,False,post_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 431}",0.27219489012425346,False,post_break,M
+orders,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 372}",0.27237981338860184,False,post_break,M
+units,moving_average,window=3,0.3522734871280508,False,post_break,M
+units,moving_average,window=6,0.3298813105984621,True,post_break,M
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 0.5}",0.3220831812002265,True,post_break,M
+units,random_forest,"{'max_depth': 12, 'min_samples_leaf': 20, 'max_features': 0.5}",0.37323708376816483,False,post_break,M
+units,random_forest,"{'max_depth': None, 'min_samples_leaf': 5, 'max_features': 'sqrt'}",0.32441063823998567,False,post_break,M
+units,random_forest,"{'max_depth': 8, 'min_samples_leaf': 20, 'max_features': 1.0}",0.3717989127739235,False,post_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 178}",0.3241479574438323,False,post_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 181}",0.32599300469534326,False,post_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 117}",0.32298299963459925,False,post_break,M
+units,xgboost,"{'objective': 'reg:squarederror', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 129}",0.32655950633429714,False,post_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 464}",0.32009831237248937,True,post_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 444}",0.32051041407086545,False,post_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 1, 'n_estimators': 308}",0.3222859854414805,False,post_break,M
+units,xgboost,"{'objective': 'count:poisson', 'max_depth': 5, 'min_child_weight': 10, 'n_estimators': 463}",0.3221744464162958,False,post_break,M

@@ -1,0 +1,5 @@
+target,network,model,handling,WAPE,MAE,RMSE,bias_pct,selection_level
+orders,CONUS,share_x_recent_level,regime_reset,0.24207437984580507,2.806355871481657,4.25878313559407,0.0036632568426873003,zone_total
+orders,Puerto Rico,post_break_average,regime_reset,0.25438404208680404,23.21,54.69723484784217,-0.029701885138097326,zone_total
+units,CONUS,random_forest,recalibrated,0.3036125937976485,3.519765230019534,6.20264460310883,0.18759134707987932,zone_total
+units,Puerto Rico,post_break_average,regime_reset,0.4624068391056554,42.19,111.36412124198709,0.20396755808855765,zone_total
