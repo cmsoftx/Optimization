@@ -46,9 +46,7 @@ class DatasetNotFoundError(FileNotFoundError):
     """Raised when the raw dataset is missing, with acquisition instructions."""
 
 
-# --------------------------------------------------------------------------- #
 # Acquisition
-# --------------------------------------------------------------------------- #
 def _expected_files() -> list[str]:
     ds = load_config()["dataset"]
     return [ds["main_file"], ds["description_file"], ds["access_log_file"]]
@@ -132,9 +130,7 @@ def download_dataset(dest: str | Path | None = None, force: bool = False) -> Pat
     return main_csv
 
 
-# --------------------------------------------------------------------------- #
 # Loading
-# --------------------------------------------------------------------------- #
 def raw_file_path(key: str = "main_file") -> Path:
     """Absolute path of a raw dataset file; raises with instructions if missing."""
     path = get_path("raw_dir") / load_config()["dataset"][key]

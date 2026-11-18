@@ -38,9 +38,7 @@ from .distance_calculator import EARTH_RADIUS_KM, haversine_km
 log = logging.getLogger(__name__)
 
 
-# --------------------------------------------------------------------------- #
 # Cleaning-decision log
-# --------------------------------------------------------------------------- #
 @dataclass
 class CleaningLog:
     """Accumulates one row per cleaning decision for data_quality_report.csv."""
@@ -75,9 +73,7 @@ RENAME_OVERRIDES = {  # clearer names for two awkward raw columns
 }
 
 
-# --------------------------------------------------------------------------- #
 # Step 1-6: cleaning and flagging (item level)
-# --------------------------------------------------------------------------- #
 def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
     """Return the PII-free, flagged item-level table. No rows are deleted here;
     rows are *flagged* so every exclusion stays auditable."""
@@ -94,7 +90,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
              orders=df["Order Id"].nunique(), units=df["Order Item Quantity"].sum(),
              remaining_records=n0, remaining_orders=df["Order Id"].nunique())
 
-    # --- columns -----------------------------------------------------------
+    # columns -----------------------------------------------------------
     pii = [c for c in cfg["dataset"]["pii_columns"] if c in df.columns]
     df = df.drop(columns=pii)
     clog.add("privacy", f"Drop PII columns: {', '.join(pii)}", "drop columns",
@@ -111,7 +107,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
     pd.DataFrame({"raw_column": list(rename), "clean_column": list(rename.values())}).to_csv(
         get_path("outputs_dir") / "phase2_column_mapping.csv", index=False)
 
-    # --- dates / duplicates ------------------------------------------------
+    # dates / duplicates ------------------------------------------------
     bad_dates = df["order_datetime"].isna() | df["shipping_datetime"].isna()
     clog.add("validity", "Unparseable order/shipping date", "would exclude", "No failures found.",
              records=bad_dates.sum())
@@ -121,7 +117,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
 
     df["order_date"] = df["order_datetime"].dt.normalize()
 
-    # --- non-demand orders -------------------------------------------------
+    # non-demand orders -------------------------------------------------
     df["is_demand"] = ~df["order_status"].isin(pp["non_demand_order_statuses"])
     m = ~df["is_demand"]
     r, o, u = int(m.sum()), int(df.loc[m, "order_id"].nunique()), int(df.loc[m, "order_item_quantity"].sum())
@@ -132,7 +128,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
              records=r, orders=o, units=u, remaining_records=int(keep.sum()),
              remaining_orders=int(df.loc[keep, "order_id"].nunique()))
 
-    # --- coordinates & networks -------------------------------------------
+    # coordinates & networks -------------------------------------------
     flag_input = df.rename(columns={"customer_id": "Customer Id", "customer_city": "Customer City",
                                     "customer_state": "Customer State", "customer_country": "Customer Country",
                                     "latitude": "Latitude", "longitude": "Longitude"})
@@ -164,7 +160,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
                  f"Role: {spec['role']}.", records=mm.sum(), orders=df.loc[mm, "order_id"].nunique(),
                  units=df.loc[mm, "order_item_quantity"].sum())
 
-    # --- regime / destination flags ----------------------------------------
+    # regime / destination flags ----------------------------------------
     brk = pd.Timestamp(pp["regime_break_date"])
     df["regime"] = np.where(df["order_datetime"] >= brk, "post_2017_10", "pre_2017_10")
     mm = keep & df["regime"].eq("post_2017_10")
@@ -191,9 +187,7 @@ def clean_items(raw: pd.DataFrame, clog: CleaningLog) -> pd.DataFrame:
     return df
 
 
-# --------------------------------------------------------------------------- #
 # Step 7: demand zones
-# --------------------------------------------------------------------------- #
 def _unit_vectors(lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
     la, lo = np.radians(lat), np.radians(lon)
     return np.column_stack([np.cos(la) * np.cos(lo), np.cos(la) * np.sin(lo), np.sin(la)])
@@ -277,9 +271,7 @@ def zone_table(d: pd.DataFrame) -> pd.DataFrame:
     return z.reset_index().sort_values(["network", "zone_id"]).reset_index(drop=True)
 
 
-# --------------------------------------------------------------------------- #
 # Step 8: aggregation
-# --------------------------------------------------------------------------- #
 def aggregate_orders(items: pd.DataFrame) -> pd.DataFrame:
     """One row per order (= one delivery). Order-level attributes are constant
     within an order (verified in Phase 1), so ``first`` is safe."""
@@ -327,9 +319,7 @@ def network_category_daily(items: pd.DataFrame) -> pd.DataFrame:
              .reset_index().rename(columns={"order_date": "date"}))
 
 
-# --------------------------------------------------------------------------- #
 # Step 9: validation
-# --------------------------------------------------------------------------- #
 def reconcile(items: pd.DataFrame, orders: pd.DataFrame, zones: pd.DataFrame,
               zdaily: pd.DataFrame) -> pd.DataFrame:
     """Check that demand is conserved across aggregation levels, per network.
@@ -418,9 +408,7 @@ def coordinate_validation(items: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-# --------------------------------------------------------------------------- #
 # Orchestration
-# --------------------------------------------------------------------------- #
 @dataclass
 class PreprocessResult:
     items: pd.DataFrame

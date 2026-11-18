@@ -19,7 +19,7 @@ OUT = get_path("outputs_dir", create=False)
 HAVE_REAL = (PROC / "cleaned_data.csv").exists()
 
 
-# --------------------------------------------------------------------------- synthetic
+# synthetic
 def test_to_snake():
     assert to_snake("Days for shipping (real)") == "days_for_shipping_real"
     assert to_snake("Late_delivery_risk") == "late_delivery_risk"
@@ -109,7 +109,7 @@ def test_cleaning_log_int_columns():
     assert str(f["orders_remaining_in_demand_set"].dtype) == "Int64"
 
 
-# --------------------------------------------------------------------------- real outputs
+# real outputs
 real = pytest.mark.skipif(not HAVE_REAL, reason="run `python main.py preprocess` first")
 
 

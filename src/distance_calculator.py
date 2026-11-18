@@ -30,3 +30,21 @@ def haversine_matrix(lat_a, lon_a, lat_b, lon_b) -> np.ndarray:
     lat_b = np.asarray(lat_b, dtype=float)[None, :]
     lon_b = np.asarray(lon_b, dtype=float)[None, :]
     return haversine_km(lat_a, lon_a, lat_b, lon_b)
+
+
+def road_distance_matrix(lat_a, lon_a, lat_b, lon_b, circuity_factor: float | None = None) -> np.ndarray:
+    """Approximate road distance (km) = great-circle distance x circuity factor.
+
+    This is NOT a road-network distance. OSRM was not reachable from the
+    execution environment, and sending zone coordinates to an external router
+    was avoided for privacy. The circuity factor (default from config) corrects
+    the systematic under-estimate of straight-line distance. Every output that
+    uses it is labelled ``distance_method = haversine_circuity``.
+    """
+    if circuity_factor is None:
+        from .config import load_config
+        circuity_factor = load_config()["optimization"]["distance"]["circuity_factor"]
+    return haversine_matrix(lat_a, lon_a, lat_b, lon_b) * float(circuity_factor)
+
+
+DISTANCE_METHOD_LABEL = "haversine_circuity (approximate road km; not a road-network distance)"

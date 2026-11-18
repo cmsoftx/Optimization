@@ -1,0 +1,25 @@
+network,method,warehouse_id,stops,packages,routes,fleet_available,unserved_stops,unserved_packages,stops_visited_more_than_once,capacity_violations,route_length_violations,fleet_violation,all_routes_start_end_at_depot,feasible,solver_status
+CONUS,nearest_neighbor,WH-US-01,36,71,3,8,0,0,0,0,0,0,True,True,constructed
+CONUS,ortools_standard,WH-US-01,36,71,3,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-01,36,71,3,8,0,0,0,0,0,0,True,True,success
+CONUS,nearest_neighbor,WH-US-03,29,51,2,8,0,0,0,0,1,0,True,False,constructed
+CONUS,ortools_standard,WH-US-03,29,51,2,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-03,29,51,2,8,0,0,0,0,0,0,True,True,success
+CONUS,nearest_neighbor,WH-US-05,19,65,3,8,0,0,0,0,0,0,True,True,constructed
+CONUS,ortools_standard,WH-US-05,19,65,3,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-05,19,65,3,8,0,0,0,0,0,0,True,True,success
+CONUS,nearest_neighbor,WH-US-14,22,37,2,8,0,0,0,0,2,0,True,False,constructed
+CONUS,ortools_standard,WH-US-14,22,37,4,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-14,22,37,4,8,0,0,0,0,0,0,True,True,success
+CONUS,nearest_neighbor,WH-US-31,22,31,2,8,0,0,0,0,1,0,True,False,constructed
+CONUS,ortools_standard,WH-US-31,22,31,2,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-31,22,31,2,8,0,0,0,0,0,0,True,True,success
+CONUS,nearest_neighbor,WH-US-37,12,23,1,8,0,0,0,0,1,0,True,False,constructed
+CONUS,ortools_standard,WH-US-37,12,23,2,8,0,0,0,0,0,0,True,True,success
+CONUS,ortools_gls,WH-US-37,12,23,2,8,0,0,0,0,0,0,True,True,success
+Puerto Rico,nearest_neighbor,WH-PR-03,5,94,4,8,0,0,0,0,0,0,True,True,constructed
+Puerto Rico,ortools_standard,WH-PR-03,5,94,4,8,0,0,0,0,0,0,True,True,success
+Puerto Rico,ortools_gls,WH-PR-03,5,94,4,8,0,0,0,0,0,0,True,True,success
+Puerto Rico,nearest_neighbor,WH-PR-05,6,81,3,8,0,0,0,0,0,0,True,True,constructed
+Puerto Rico,ortools_standard,WH-PR-05,6,81,3,8,0,0,0,0,0,0,True,True,success
+Puerto Rico,ortools_gls,WH-PR-05,6,81,3,8,0,0,0,0,0,0,True,True,success

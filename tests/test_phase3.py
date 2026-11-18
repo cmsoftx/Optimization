@@ -130,7 +130,7 @@ def test_ml_pipeline_end_to_end_on_toy_panel():
     assert (h1["predicted"] >= 0).all()
 
 
-# ----------------------------------------------------------------------------- real outputs
+# real outputs
 HAVE = (OUT / "forecast_evaluation.csv").exists()
 real = pytest.mark.skipif(not HAVE, reason="run `python main.py forecast` first")
 

@@ -49,9 +49,7 @@ BASELINES = ("historical_average", "moving_average")
 ALL_MODELS = BASELINES + ML_MODELS
 
 
-# --------------------------------------------------------------------------- #
 # Panel
-# --------------------------------------------------------------------------- #
 @dataclass
 class Panel:
     gran: str
@@ -96,9 +94,7 @@ def build_panel(zone_daily: pd.DataFrame, zones: pd.DataFrame, gran: str = "W") 
     return Panel(gran, periods, zmeta, Y)
 
 
-# --------------------------------------------------------------------------- #
 # Features (strictly past-only)
-# --------------------------------------------------------------------------- #
 def _prefix(X: np.ndarray) -> np.ndarray:
     """S[:, t] = sum of columns < t  (shape Z x (T+1))."""
     return np.concatenate([np.zeros((X.shape[0], 1)), np.cumsum(X, axis=1)], axis=1)
@@ -210,9 +206,7 @@ def long_frame(panel: Panel, Y: dict | None = None) -> pd.DataFrame:
     return df
 
 
-# --------------------------------------------------------------------------- #
 # Models
-# --------------------------------------------------------------------------- #
 def _X(df: pd.DataFrame, gran: str) -> np.ndarray:
     return df[feature_names(gran)].to_numpy(dtype=float)
 
@@ -325,9 +319,7 @@ def refit(fm: FittedModels, data: pd.DataFrame, seed: int) -> FittedModels:
     return out
 
 
-# --------------------------------------------------------------------------- #
 # Forecasting modes
-# --------------------------------------------------------------------------- #
 def one_step(fm: FittedModels, frame: pd.DataFrame, t_idx: np.ndarray, models=ALL_MODELS) -> pd.DataFrame:
     """Walk-forward forecasts for periods ``t_idx`` using actual history up to t-1."""
     rows = frame[frame["t"].isin(t_idx)]
@@ -380,9 +372,7 @@ def horizon(fm: FittedModels, panel: Panel, origin: int, H: int, models=ALL_MODE
     return pd.concat(out, ignore_index=True)
 
 
-# --------------------------------------------------------------------------- #
 # Metrics
-# --------------------------------------------------------------------------- #
 def metrics(y, p) -> dict:
     y, p = np.asarray(y, float), np.asarray(p, float)
     e = p - y
@@ -433,9 +423,7 @@ def evaluate(pred: pd.DataFrame, tiers: pd.Series, keys: dict) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-# --------------------------------------------------------------------------- #
 # Post-break adaptation
-# --------------------------------------------------------------------------- #
 def recalibration_factors(onestep_adapt: pd.DataFrame) -> pd.DataFrame:
     """Network-level level-correction factor = actual / predicted over the adaptation window."""
     s = onestep_adapt.groupby(["network", "target", "model"])[["actual", "predicted"]].sum()
@@ -493,9 +481,7 @@ def oracle_reference(pred: pd.DataFrame) -> pd.DataFrame:
     return one
 
 
-# --------------------------------------------------------------------------- #
 # Orchestration
-# --------------------------------------------------------------------------- #
 @dataclass
 class ForecastRun:
     gran: str
@@ -555,7 +541,7 @@ def run_forecasting(zone_daily: pd.DataFrame, zones: pd.DataFrame, gran: str = "
                                    "handling": "none"}))
         evals.append(evaluate(orc, tiers, {"granularity": gran, "eval_set": f"{split}_test", "mode": "reference"}))
 
-    # ---- post-break adaptation: observe the first `adapt` periods, then forecast the rest
+    # post-break adaptation: observe the first `adapt` periods, then forecast the rest
     fm = models["post_break"]
     _, _, _, te = _split_indices(panel, "post_break")
     adapt = fc["granularity"][gran]["adapt_periods"]
@@ -615,9 +601,7 @@ def feature_importance(fm: FittedModels, frame: pd.DataFrame, test_idx: np.ndarr
     return pd.DataFrame(rows)
 
 
-# --------------------------------------------------------------------------- #
 # Model selection and CFLP hand-off
-# --------------------------------------------------------------------------- #
 def model_comparison(evaluation: pd.DataFrame) -> pd.DataFrame:
     """Compact comparison: zone-level WAPE/MAE/RMSE per (granularity, eval set, mode, handling, target,
     network, model), plus each model's rank within its group."""
@@ -734,9 +718,7 @@ def save_models(run: ForecastRun, final_fm: FittedModels, selection: pd.DataFram
                 d / "demand_forecasting_model.pkl", compress=3)
 
 
-# --------------------------------------------------------------------------- #
 # Phase 3 entry point
-# --------------------------------------------------------------------------- #
 @dataclass
 class Phase3Result:
     runs: dict

@@ -1,0 +1,159 @@
+{
+  "stage": "warehouse",
+  "timestamp": "2026-11-18 20:14:41",
+  "optimization": {
+    "demand_file": "data/outputs/cflp_zone_demand_forecast.csv",
+    "demand_columns": {
+      "orders": "forecast_per_period_orders",
+      "units": "forecast_per_period_units"
+    },
+    "periods_per_year": 52,
+    "distance": {
+      "method": "haversine_circuity",
+      "circuity_factor": 1.2
+    },
+    "solver": {
+      "name": "cbc",
+      "time_limit_s": 120,
+      "mip_rel_gap": 0.0001,
+      "unserved_penalty_per_unit": 10000
+    },
+    "networks": {
+      "CONUS": {
+        "candidates": {
+          "coverage_clusters": 30,
+          "top_demand_zones": 10
+        },
+        "min_warehouses": 1,
+        "max_warehouses": 12,
+        "capacity_units_per_week": 80,
+        "fixed_cost_per_week": 1500,
+        "cost_per_order_km": 0.1,
+        "handling_cost_per_unit": 0.5
+      },
+      "Puerto Rico": {
+        "candidates": {
+          "coverage_clusters": 25,
+          "top_demand_zones": 25
+        },
+        "min_warehouses": 1,
+        "max_warehouses": 4,
+        "capacity_units_per_week": 100,
+        "fixed_cost_per_week": 1200,
+        "cost_per_order_km": 0.1,
+        "handling_cost_per_unit": 0.5
+      }
+    }
+  },
+  "genetic_algorithm": {
+    "population_size": 60,
+    "generations": 80,
+    "crossover_probability": 0.8,
+    "mutation_probability": 0.3,
+    "gene_flip_probability": null,
+    "tournament_size": 3,
+    "elite_size": 2,
+    "patience": 25,
+    "seeds": [
+      11,
+      22,
+      33,
+      44,
+      55
+    ],
+    "random_baseline_draws": 30
+  },
+  "routing": {
+    "packages_per_order": 1,
+    "service_time_min_per_stop": 10,
+    "vehicle_cost_per_km": 1.0,
+    "driver_cost_per_hour": 25.0,
+    "time_limit_s_per_depot": 10,
+    "networks": {
+      "CONUS": {
+        "vehicle_capacity_packages": 30,
+        "vehicles_per_depot": 8,
+        "speed_kmh": 65,
+        "max_route_km": 3000
+      },
+      "Puerto Rico": {
+        "vehicle_capacity_packages": 30,
+        "vehicles_per_depot": 8,
+        "speed_kmh": 40,
+        "max_route_km": 400
+      }
+    }
+  },
+  "experiments": {
+    "sensitivity": {
+      "capacity_multipliers": [
+        0.6,
+        0.8,
+        1.0,
+        1.5,
+        2.0,
+        3.0
+      ],
+      "fixed_warehouse_counts": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "fixed_cost_multipliers": [
+        0.25,
+        0.5,
+        1.0,
+        2.0,
+        4.0
+      ],
+      "cost_per_km_multipliers": [
+        0.25,
+        0.5,
+        1.0,
+        2.0,
+        4.0
+      ],
+      "demand_growth": [
+        -0.2,
+        -0.1,
+        0.0,
+        0.1,
+        0.2,
+        0.4
+      ],
+      "vehicle_capacities": [
+        15,
+        20,
+        30,
+        45,
+        60
+      ],
+      "vehicles_per_depot": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "zone_diameters_km": [
+        25,
+        50,
+        100
+      ]
+    },
+    "robustness_demand_changes": [
+      -0.2,
+      -0.1,
+      0.0,
+      0.1,
+      0.2
+    ]
+  },
+  "seed": 42
+}

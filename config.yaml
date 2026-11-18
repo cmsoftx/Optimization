@@ -132,3 +132,70 @@ forecasting:
   xgboost_fixed: {learning_rate: 0.05, n_estimators: 2000, subsample: 0.8, colsample_bytree: 0.8,
                   reg_lambda: 1.0, reg_alpha: 0.0, early_stopping_rounds: 100}
   cflp_horizon_periods: 13         # forward forecast handed to the CFLP (one quarter)
+
+# ---------------------------------------------------------------------------
+# Phases 4-8: optimisation. EVERY value below is a SIMULATION ASSUMPTION
+# (the dataset contains no warehouses, costs, capacities or fleet).
+# Planning period = one week (demand inputs are weekly forecasts); annual = x52.
+# ---------------------------------------------------------------------------
+optimization:
+  demand_file: data/outputs/cflp_zone_demand_forecast.csv
+  demand_columns: {orders: forecast_per_period_orders, units: forecast_per_period_units}
+  periods_per_year: 52
+  distance:
+    method: haversine_circuity     # OSRM is not reachable from this environment (see report)
+    circuity_factor: 1.20          # road km ~ 1.2 x great-circle km (published US detour indices ~1.17-1.21)
+  solver: {name: cbc, time_limit_s: 120, mip_rel_gap: 0.0001, unserved_penalty_per_unit: 10000}
+  networks:
+    CONUS:
+      candidates: {coverage_clusters: 30, top_demand_zones: 10}
+      min_warehouses: 1
+      max_warehouses: 12
+      capacity_units_per_week: 80          # handling/storage throughput per warehouse
+      fixed_cost_per_week: 1500            # amortised opening + fixed operating cost (USD)
+      cost_per_order_km: 0.10              # outbound delivery cost per order per road-km (USD)
+      handling_cost_per_unit: 0.50         # uniform, so it does not change the optimal location
+    Puerto Rico:
+      candidates: {coverage_clusters: 25, top_demand_zones: 25}   # all 25 zones are candidates
+      min_warehouses: 1
+      max_warehouses: 4
+      capacity_units_per_week: 100
+      fixed_cost_per_week: 1200
+      cost_per_order_km: 0.10
+      handling_cost_per_unit: 0.50
+
+genetic_algorithm:
+  population_size: 60
+  generations: 80
+  crossover_probability: 0.8
+  mutation_probability: 0.3        # probability an individual is mutated
+  gene_flip_probability: null      # null -> 1 / chromosome length
+  tournament_size: 3
+  elite_size: 2
+  patience: 25                     # stop early after this many generations without improvement
+  seeds: [11, 22, 33, 44, 55]
+  random_baseline_draws: 30
+
+routing:
+  # Weekly consolidated delivery plan: each demand-zone centroid is a delivery point
+  # (e.g. a local parcel hub); one package = one order (no weights/volumes in the data).
+  packages_per_order: 1
+  service_time_min_per_stop: 10
+  vehicle_cost_per_km: 1.0
+  driver_cost_per_hour: 25.0
+  time_limit_s_per_depot: 10        # Guided Local Search budget per depot
+  networks:
+    CONUS:       {vehicle_capacity_packages: 30, vehicles_per_depot: 8, speed_kmh: 65, max_route_km: 3000}
+    Puerto Rico: {vehicle_capacity_packages: 30, vehicles_per_depot: 8, speed_kmh: 40, max_route_km: 400}
+
+experiments:
+  sensitivity:
+    capacity_multipliers: [0.6, 0.8, 1.0, 1.5, 2.0, 3.0]
+    fixed_warehouse_counts: [2, 3, 4, 5, 6, 7, 8, 10, 12]
+    fixed_cost_multipliers: [0.25, 0.5, 1.0, 2.0, 4.0]
+    cost_per_km_multipliers: [0.25, 0.5, 1.0, 2.0, 4.0]
+    demand_growth: [-0.2, -0.1, 0.0, 0.1, 0.2, 0.4]
+    vehicle_capacities: [15, 20, 30, 45, 60]
+    vehicles_per_depot: [2, 3, 4, 6, 8]
+    zone_diameters_km: [25, 50, 100]
+  robustness_demand_changes: [-0.2, -0.1, 0.0, 0.1, 0.2]

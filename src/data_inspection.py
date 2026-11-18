@@ -23,9 +23,7 @@ ORDER_DATE = "order date (DateOrders)"
 SHIP_DATE = "shipping date (DateOrders)"
 
 
-# --------------------------------------------------------------------------- #
 # Column-level profiling
-# --------------------------------------------------------------------------- #
 def column_profile(df: pd.DataFrame, dictionary: pd.DataFrame | None = None) -> pd.DataFrame:
     """One row per column: dtype, completeness, cardinality, example value.
 
@@ -58,9 +56,7 @@ def masked_constant_columns(df: pd.DataFrame) -> list[str]:
     return [c for c in df.columns if df[c].nunique(dropna=False) <= 1]
 
 
-# --------------------------------------------------------------------------- #
 # Integrity / consistency checks
-# --------------------------------------------------------------------------- #
 def integrity_checks(df: pd.DataFrame) -> pd.DataFrame:
     """Logical consistency checks between redundant columns.
 
@@ -113,9 +109,7 @@ def integrity_checks(df: pd.DataFrame) -> pd.DataFrame:
     ])
 
 
-# --------------------------------------------------------------------------- #
 # Geography
-# --------------------------------------------------------------------------- #
 def _in_bbox(lat: pd.Series, lon: pd.Series, bb: dict) -> pd.Series:
     return lat.between(bb["lat_min"], bb["lat_max"]) & lon.between(bb["lon_min"], bb["lon_max"])
 
@@ -204,9 +198,7 @@ def region_breakdown(df: pd.DataFrame) -> pd.DataFrame:
     return out.sort_values("records", ascending=False)
 
 
-# --------------------------------------------------------------------------- #
 # Outliers
-# --------------------------------------------------------------------------- #
 def iqr_outliers(frame: pd.DataFrame, columns: list[str], level: str) -> pd.DataFrame:
     """Tukey-fence outlier counts for numeric columns."""
     k = load_config()["data_quality"]["iqr_multiplier"]
@@ -223,9 +215,7 @@ def iqr_outliers(frame: pd.DataFrame, columns: list[str], level: str) -> pd.Data
     return pd.DataFrame(rows)
 
 
-# --------------------------------------------------------------------------- #
 # Order-level aggregation (an order is the delivery unit, not an item row)
-# --------------------------------------------------------------------------- #
 def aggregate_orders(df: pd.DataFrame) -> pd.DataFrame:
     """Collapse order-item rows into one row per order (= one delivery).
 
@@ -247,9 +237,7 @@ def aggregate_orders(df: pd.DataFrame) -> pd.DataFrame:
               .reset_index())
 
 
-# --------------------------------------------------------------------------- #
 # Temporal analysis
-# --------------------------------------------------------------------------- #
 def monthly_volume(df: pd.DataFrame) -> pd.DataFrame:
     """Rows, orders, units, markets and categories per order month."""
     d = df.assign(month=df[ORDER_DATE].dt.to_period("M").astype(str), region=classify_region(df))
@@ -272,9 +260,7 @@ def detect_volume_breaks(monthly: pd.DataFrame, col: str = "units", threshold: f
     return m[m["rel_change"].abs() > threshold][["month", col, "trailing_median", "rel_change"]]
 
 
-# --------------------------------------------------------------------------- #
 # Report generation
-# --------------------------------------------------------------------------- #
 @dataclass
 class InspectionResult:
     shape: tuple[int, int]

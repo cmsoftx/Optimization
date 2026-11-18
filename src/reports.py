@@ -246,9 +246,7 @@ def write_phase2_report(pre, tables: dict) -> None:
     path.write_text(build_phase2_report(pre, tables), encoding="utf-8")
 
 
-# =========================================================================== #
 # Phase 3 report
-# =========================================================================== #
 XGB_MATH = r"""
 ### How XGBoost works (as used here)
 

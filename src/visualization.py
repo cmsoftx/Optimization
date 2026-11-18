@@ -257,9 +257,7 @@ def make_phase2_figures(zones, zone_daily, tables: dict) -> list[Path]:
     return paths
 
 
-# =========================================================================== #
 # Phase 3: forecasting figures
-# =========================================================================== #
 MODEL_COLORS = {"historical_average": "#2a78d6", "moving_average": "#eb6834", "random_forest": "#1baf7a",
                 "xgboost": "#eda100", "share_x_recent_level": "#e87ba4", "post_break_average": "#6250d6",
                 "oracle_window_mean": "#52514e"}
