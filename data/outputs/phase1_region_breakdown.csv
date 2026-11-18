@@ -1,0 +1,5 @@
+region,records,orders,customers,units,unique_coordinates,records_pct
+CONUS,110286,40134,12627,234308,4255,61.09
+Puerto Rico,68775,25091,7867,146688,7535,38.1
+Hawaii,1187,443,141,2522,28,0.66
+Outside US bounding boxes,271,84,17,561,17,0.15

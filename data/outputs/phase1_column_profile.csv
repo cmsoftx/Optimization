@@ -1,0 +1,54 @@
+column,dtype,non_null,missing,missing_pct,n_unique,example,is_pii,in_data_dictionary
+Type,str,180519,0,0.0,4,DEBIT,False,True
+Days for shipping (real),int64,180519,0,0.0,7,3,False,True
+Days for shipment (scheduled),int64,180519,0,0.0,4,4,False,True
+Benefit per order,float64,180519,0,0.0,21998,91.25,False,True
+Sales per customer,float64,180519,0,0.0,2927,314.6400146,False,True
+Delivery Status,str,180519,0,0.0,4,Advance shipping,False,True
+Late_delivery_risk,int64,180519,0,0.0,2,0,False,True
+Category Id,int64,180519,0,0.0,51,73,False,True
+Category Name,str,180519,0,0.0,50,Sporting Goods,False,True
+Customer City,str,180519,0,0.0,563,Caguas,False,True
+Customer Country,str,180519,0,0.0,2,Puerto Rico,False,True
+Customer Email,str,180519,0,0.0,1,<redacted PII>,True,True
+Customer Fname,str,180519,0,0.0,782,<redacted PII>,True,True
+Customer Id,int64,180519,0,0.0,20652,20755,False,True
+Customer Lname,str,180511,8,0.004,1109,<redacted PII>,True,True
+Customer Password,str,180519,0,0.0,1,<redacted PII>,True,True
+Customer Segment,str,180519,0,0.0,3,Consumer,False,True
+Customer State,str,180519,0,0.0,46,PR,False,True
+Customer Street,str,180519,0,0.0,7458,<redacted PII>,True,True
+Customer Zipcode,float64,180516,3,0.002,995,725.0,False,True
+Department Id,int64,180519,0,0.0,11,2,False,True
+Department Name,str,180519,0,0.0,11,Fitness,False,True
+Latitude,float64,180519,0,0.0,11250,18.2514534,False,True
+Longitude,float64,180519,0,0.0,4487,-66.03705597,False,True
+Market,str,180519,0,0.0,5,Pacific Asia,False,True
+Order City,str,180519,0,0.0,3597,Bekasi,False,True
+Order Country,str,180519,0,0.0,164,Indonesia,False,True
+Order Customer Id,int64,180519,0,0.0,20652,20755,False,True
+order date (DateOrders),datetime64[us],180519,0,0.0,65752,2018-01-31 22:56:00,False,True
+Order Id,int64,180519,0,0.0,65752,77202,False,True
+Order Item Cardprod Id,int64,180519,0,0.0,118,1360,False,True
+Order Item Discount,float64,180519,0,0.0,1017,13.10999966,False,True
+Order Item Discount Rate,float64,180519,0,0.0,18,0.039999999,False,True
+Order Item Id,int64,180519,0,0.0,180519,180517,False,True
+Order Item Product Price,float64,180519,0,0.0,75,327.75,False,True
+Order Item Profit Ratio,float64,180519,0,0.0,162,0.289999992,False,True
+Order Item Quantity,int64,180519,0,0.0,5,1,False,True
+Sales,float64,180519,0,0.0,193,327.75,False,True
+Order Item Total,float64,180519,0,0.0,2927,314.6400146,False,True
+Order Profit Per Order,float64,180519,0,0.0,21998,91.25,False,True
+Order Region,str,180519,0,0.0,23,Southeast Asia,False,True
+Order State,str,180519,0,0.0,1089,Java Occidental,False,True
+Order Status,str,180519,0,0.0,9,COMPLETE,False,True
+Order Zipcode,float64,24840,155679,86.24,609,99301.0,False,False
+Product Card Id,int64,180519,0,0.0,118,1360,False,True
+Product Category Id,int64,180519,0,0.0,51,73,False,True
+Product Description,float64,0,180519,100.0,0,,False,True
+Product Image,str,180519,0,0.0,118,http://images.acmesports.sports/Smart+watch ,False,True
+Product Name,str,180519,0,0.0,118,Smart watch ,False,True
+Product Price,float64,180519,0,0.0,75,327.75,False,True
+Product Status,int64,180519,0,0.0,1,0,False,True
+shipping date (DateOrders),datetime64[us],180519,0,0.0,63701,2018-02-03 22:56:00,False,False
+Shipping Mode,str,180519,0,0.0,4,Standard Class,False,True

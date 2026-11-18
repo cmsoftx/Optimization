@@ -1,0 +1,10 @@
+check,records,records_pct,customers
+missing,0,0.0,0
+out_of_range,0,0.0,0
+zero_island,0,0.0,0
+positive_longitude,105,0.058,6
+outside_us_boxes,271,0.15,17
+inconsistent_with_state,2564,1.42,214
+region_conflicts_country,598,0.331,66
+placeholder_coordinate,370,0.205,28
+any_flag,2727,1.511,222

@@ -1,0 +1,175 @@
+Customer State,Customer City,Latitude,Longitude,region,missing,out_of_range,zero_island,positive_longitude,outside_us_boxes,inconsistent_with_state,region_conflicts_country,placeholder_coordinate,records,customers,km_from_state_median
+CO,Aurora,39.49591446,-98.98998261,CONUS,False,False,False,False,False,False,False,True,94,5,501.74911429985326
+PR,Guayama,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,78,7,3921.9179569264666
+IL,Aurora,39.49591446,-98.98998261,CONUS,False,False,False,False,False,False,False,True,69,3,979.3058923927596
+IL,Aurora,39.70932007,-104.8145828,CONUS,False,False,False,False,False,True,False,False,44,10,1449.865765533273
+MI,Canton,38.61802673,-121.3454514,CONUS,False,False,False,False,False,True,False,False,43,1,3220.0689832689914
+PR,Arecibo,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,39,4,3921.9179569264666
+MI,Holland,29.51066399,-98.54441071,CONUS,False,False,False,False,False,True,False,False,39,1,1980.6771448837794
+MN,Saint Paul,36.15301132,-119.3364792,CONUS,False,False,False,False,False,True,False,False,34,1,2401.5872216751995
+OH,Columbus,30.27972984,-97.83985138,CONUS,False,False,False,False,False,True,False,False,34,1,1753.5894937356622
+OR,Bend,44.05973816,-12.13093758,Outside US bounding boxes,False,False,False,False,True,True,False,False,33,1,7983.911253821973
+DC,Washington,38.91199112,77.09209442,Outside US bounding boxes,False,False,False,True,True,True,False,False,32,1,10969.023939691193
+CT,Enfield,44.70373917,-93.17900848,CONUS,False,False,False,False,False,True,False,False,31,1,1670.439906225409
+IL,Lombard,34.06631851,-117.8853378,CONUS,False,False,False,False,False,True,False,False,31,1,2759.9715505174504
+WI,Madison,32.77584457,-117.0497437,CONUS,False,False,False,False,False,True,False,False,31,1,2696.1418671511888
+CT,Stamford,28.61019707,-81.18619537,CONUS,False,False,False,False,False,True,False,False,30,1,1595.4777130667005
+HI,Kaneohe,33.88234711,-118.0990067,CONUS,False,False,False,False,False,True,False,False,29,1,4128.671471556701
+CT,Milford,34.28963089,-84.17045593,CONUS,False,False,False,False,False,True,False,False,28,1,1248.8233592402971
+FL,Miami,33.39097977,-111.916275,CONUS,False,False,False,False,False,True,False,False,26,1,3141.0692911134356
+OH,Hamilton,36.72526169,-119.7846375,CONUS,False,False,False,False,False,True,False,False,26,1,3226.6635487982
+GA,Smyrna,32.95944214,-96.76813507,CONUS,False,False,False,False,False,True,False,False,26,1,1155.5457749112425
+PR,Rio Grande,39.5646553,-87.28941345,CONUS,False,False,False,False,False,True,True,False,25,1,3108.1958977172294
+PR,Cayey,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,25,2,3921.9179569264666
+PR,Carolina,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,24,2,3921.9179569264666
+PR,San Sebastian,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,24,3,3921.9179569264666
+CT,New Haven,37.76008225,-85.50026703,CONUS,False,False,False,False,False,True,False,False,24,1,1135.240047632122
+CT,Stamford,39.94430924,-86.03607941,CONUS,False,False,False,False,False,True,False,False,24,2,1102.4106665148222
+GA,Atlanta,29.59053612,-98.6216507,CONUS,False,False,False,False,False,True,False,False,23,1,1428.05038547821
+CA,Huntington Beach,29.5553627,-98.5673523,CONUS,False,False,False,False,False,True,False,False,23,1,1922.0377533087924
+PR,San Juan,37.30836105,-107.8625183,CONUS,False,False,False,False,False,True,True,False,23,1,4550.174599363824
+PR,San Juan,36.85575485,-121.6410446,CONUS,False,False,False,False,False,True,True,False,23,1,5740.925332074376
+CO,Englewood,42.73287964,-83.45014954,CONUS,False,False,False,False,False,True,False,False,22,1,1815.6951130133903
+MI,Ann Arbor,32.81396866,-96.78915405,CONUS,False,False,False,False,False,True,False,False,22,1,1595.4609682005691
+FL,Tampa,28.00750923,82.46199799,Outside US bounding boxes,False,False,False,True,True,True,False,False,22,1,13717.337635219108
+CT,Manchester,42.93608093,-85.52552033,CONUS,False,False,False,False,False,True,False,False,22,1,1039.4107446643961
+PA,Irwin,33.93185043,-117.9664383,CONUS,False,False,False,False,False,True,False,False,22,1,3798.060668091679
+IN,Indianapolis,18.25650024,-86.45420837,Outside US bounding boxes,False,False,False,False,True,True,False,False,21,1,2399.85970164638
+PR,San Juan,26.22724915,-98.14912415,CONUS,False,False,False,False,False,True,True,False,21,1,3379.143623997959
+OH,Lancaster,37.72990799,-122.4132996,CONUS,False,False,False,False,False,True,False,False,21,1,3414.549687893333
+NY,Brooklyn,32.71671677,-116.997261,CONUS,False,False,False,False,False,True,False,False,20,1,3898.471112570904
+MD,Hyattsville,33.35597992,-111.9122238,CONUS,False,False,False,False,False,True,False,False,20,1,3191.778468772062
+PA,Philadelphia,34.08999252,-118.1542206,CONUS,False,False,False,False,False,True,False,False,19,1,3807.2166880254063
+MA,Lawrence,34.02827454,-118.2391357,CONUS,False,False,False,False,False,True,False,False,19,1,4169.485482806321
+NY,Freeport,33.06581879,-97.36239624,CONUS,False,False,False,False,False,True,False,False,19,1,2241.309651411999
+PR,San Juan,26.23668098,-98.13918304,CONUS,False,False,False,False,False,True,True,False,19,1,3378.3208253051653
+OK,Lawton,33.91519928,-118.3710251,CONUS,False,False,False,False,False,True,False,False,19,1,2058.209982796279
+GA,Duluth,33.83944702,-118.1929245,CONUS,False,False,False,False,False,True,False,False,18,1,3110.598578447464
+PR,Rio Grande,28.50914955,-81.40107727,CONUS,False,False,False,False,False,True,True,False,18,3,1908.6847694314608
+OR,Portland,42.66555023,-12.25018311,Outside US bounding boxes,False,False,False,False,True,True,False,False,18,1,8088.64373647177
+OR,Eugene,44.1065712,-12.32418346,Outside US bounding boxes,False,False,False,False,True,True,False,False,18,1,7969.413461359695
+PA,Lancaster,32.83679962,-116.9842072,CONUS,False,False,False,False,False,True,False,False,18,1,3763.178942136255
+PA,Morrisville,25.91908455,-97.47012329,CONUS,False,False,False,False,False,True,False,False,18,1,2569.202056215102
+TX,Del Rio,33.45428085,-111.9272156,CONUS,False,False,False,False,False,True,False,False,18,1,1430.4494987667074
+NY,Brooklyn,32.83679962,-116.9842072,CONUS,False,False,False,False,False,True,False,False,18,1,3891.5830253277736
+NJ,Newark,45.59003067,-122.7145844,CONUS,False,False,False,False,False,True,False,False,18,1,3911.082602637584
+NC,Jacksonville,29.46871567,-98.35108948,CONUS,False,False,False,False,False,True,False,False,18,1,1938.5228416377845
+NV,Las Vegas,36.19867706,115.2630768,Outside US bounding boxes,False,False,False,True,True,True,False,False,17,1,10435.906042720195
+NY,Brooklyn,33.72745132,-117.7688828,CONUS,False,False,False,False,False,True,False,False,17,1,3915.7216618046155
+NY,New York,33.84832001,-118.0822906,CONUS,False,False,False,False,False,True,False,False,17,1,3936.532107038127
+MD,Fort Washington,42.3069191,-88.8275528,CONUS,False,False,False,False,False,True,False,False,17,1,1065.3388904455273
+HI,Mililani,34.42766571,-119.8731689,CONUS,False,False,False,False,False,True,False,False,17,1,3978.877431405369
+NV,Las Vegas,36.16392899,115.0497894,Outside US bounding boxes,False,False,False,True,True,True,False,False,17,1,10450.859132199528
+PR,San Juan,29.77161026,-95.31563568,CONUS,False,False,False,False,False,True,True,False,17,1,3194.944537923783
+AZ,Scottsdale,29.40739441,-98.65895081,CONUS,False,False,False,False,False,True,False,False,17,1,1336.9453713095957
+MN,Saint Paul,33.7542305,-117.9454346,CONUS,False,False,False,False,False,True,False,False,16,1,2450.804288323772
+MI,Ann Arbor,37.81472397,-121.2901917,CONUS,False,False,False,False,False,True,False,False,16,1,3246.8105359322394
+MD,Hagerstown,33.10355759,-117.2678757,CONUS,False,False,False,False,False,True,False,False,16,1,3663.4201474535953
+MI,Dearborn,30.07419395,-99.35958862,CONUS,False,False,False,False,False,True,False,False,16,1,1984.5193831262834
+PR,Rio Grande,37.58076477,-77.58818054,CONUS,False,False,False,False,False,True,True,False,16,2,2411.0955172181248
+PR,Canovanas,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,16,1,3921.9179569264666
+PR,San Sebastian,29.93087578,-81.33435059,CONUS,False,False,False,False,False,True,True,False,16,1,1994.8888981245182
+CT,Enfield,35.23356628,-125.4500504,Outside US bounding boxes,False,False,False,False,True,True,False,False,16,1,4550.433463885952
+CA,Los Angeles,29.68502998,-95.74115753,CONUS,False,False,False,False,False,True,False,False,16,1,2174.854831875472
+HI,Waipahu,47.83976364,-120.0162506,CONUS,False,False,False,False,False,True,False,False,15,1,4473.7817400301465
+FL,Pompano Beach,26.21545029,-98.274086,CONUS,False,False,False,False,False,True,False,False,15,1,1790.6268426988827
+CA,Carlsbad,30.04306793,-95.34195709,CONUS,False,False,False,False,False,True,False,False,15,1,2198.95588812209
+FL,Orlando,37.31459045,-121.7920227,CONUS,False,False,False,False,False,True,False,False,15,1,4077.7594207069865
+AZ,Tucson,37.99792099,-122.1571274,CONUS,False,False,False,False,False,True,False,False,15,1,1051.7974664929463
+AR,Jonesboro,25.91904068,-97.45480347,CONUS,False,False,False,False,False,True,False,False,15,1,1271.1463059888424
+IL,Tinley Park,33.02153778,-96.73547363,CONUS,False,False,False,False,False,True,False,False,15,1,1261.438586962964
+OR,Portland,34.28967667,-118.7445602,CONUS,False,False,False,False,False,True,False,False,15,1,1237.3812469559316
+PR,San Juan,36.81546021,-121.5247345,CONUS,False,False,False,False,False,True,True,False,15,3,5730.196332612994
+CO,Broomfield,37.6722908,-121.0311356,CONUS,False,False,False,False,False,True,False,False,15,1,1421.1624404590984
+PR,Rio Grande,30.27419853,-97.74797058,CONUS,False,False,False,False,False,True,True,False,15,1,3435.3788431411394
+PR,San Juan,37.3740387,-108.5545654,CONUS,False,False,False,False,False,True,True,False,15,1,4611.01767172542
+NJ,Wayne,29.55552483,-95.71289825,CONUS,False,False,False,False,False,True,False,False,14,1,2299.2902920947163
+NJ,Union,33.68896103,-117.9957428,CONUS,False,False,False,False,False,True,False,False,14,1,3910.955733841256
+PR,Caguas,25.85214233,-97.53455353,CONUS,False,False,False,False,False,True,True,False,14,1,3312.2451709504803
+PR,San Juan,45.44006348,-84.77752686,CONUS,False,False,False,False,False,True,True,False,14,1,3468.9028680146266
+PR,San Juan,38.10029221,-107.9681396,CONUS,False,False,False,False,False,True,True,False,14,3,4584.139048724072
+PR,San Juan,27.49183083,-82.63729096,CONUS,False,False,False,False,False,True,True,False,14,1,1954.9100540920713
+IL,Chicago,34.69804382,-118.1030502,CONUS,False,False,False,False,False,True,False,False,13,1,2746.336203674968
+IL,Chicago,36.95888138,-122.0326004,CONUS,False,False,False,False,False,True,False,False,13,1,2970.4086354326237
+IL,Glenview,37.64143753,-121.8764877,CONUS,False,False,False,False,False,True,False,False,13,1,2930.668244190307
+NY,Brooklyn,37.76897812,-122.3891907,CONUS,False,False,False,False,False,True,False,False,13,1,4131.493624649955
+FL,Tampa,34.02510834,-117.9581146,CONUS,False,False,False,False,False,True,False,False,13,1,3703.8370315081115
+FL,Orange Park,33.69361115,-112.0330811,CONUS,False,False,False,False,False,True,False,False,13,1,3155.706515091162
+CA,Oceanside,32.68920898,-97.39685059,CONUS,False,False,False,False,False,True,False,False,13,1,1938.06541102398
+MA,Peabody,34.00696564,-118.0692978,CONUS,False,False,False,False,False,True,False,False,13,1,4156.624838484642
+OR,Portland,45.59825897,-12.27242851,Outside US bounding boxes,False,False,False,False,True,True,False,False,13,1,7853.852013700106
+PR,Rio Grande,42.25645828,-83.41688538,CONUS,False,False,False,False,False,True,True,False,12,3,3118.005872096337
+WA,Kent,30.34607887,-97.78190613,CONUS,False,False,False,False,False,True,False,False,12,1,2836.4860737728777
+MD,Dundalk,33.8795166,-117.8717194,CONUS,False,False,False,False,False,True,False,False,12,1,3683.024361604919
+MD,Hyattsville,33.06581879,-97.36239624,CONUS,False,False,False,False,False,True,False,False,12,1,1963.5377110900108
+MO,Florissant,35.58302689,-119.3540421,CONUS,False,False,False,False,False,True,False,False,12,1,2583.4370992039853
+OR,Beaverton,45.49733353,-12.27056122,Outside US bounding boxes,False,False,False,False,True,True,False,False,11,1,7861.945040090167
+PR,Rio Grande,37.98626328,-121.8295059,CONUS,False,False,False,False,False,True,True,False,11,3,5770.173305858037
+LA,New Orleans,34.04553986,-118.2389755,CONUS,False,False,False,False,False,True,False,False,11,1,2682.803712146863
+OR,Bend,44.07210541,-12.13232708,Outside US bounding boxes,False,False,False,False,True,True,False,False,11,1,7982.847535251042
+FL,Miami,34.22512436,-119.1793594,CONUS,False,False,False,False,False,True,False,False,11,1,3817.301144082923
+CA,Garden Grove,29.89192772,-97.95385742,CONUS,False,False,False,False,False,True,False,False,11,1,1965.3323396753267
+NJ,Newark,34.20433044,-118.2365112,CONUS,False,False,False,False,False,True,False,False,10,1,3907.8624872941414
+IN,Michigan City,33.86579514,-112.1325073,CONUS,False,False,False,False,False,True,False,False,10,1,2398.2410098824403
+NJ,Newark,45.5898819,-122.7153473,CONUS,False,False,False,False,False,True,False,False,10,1,3911.143897138816
+NY,Jackson Heights,34.06508637,-117.7450943,CONUS,False,False,False,False,False,True,False,False,10,1,3898.282222771753
+PA,Doylestown,33.86559296,-118.0953445,CONUS,False,False,False,False,False,True,False,False,10,1,3811.887723243686
+NY,Webster,37.77796936,-121.9719162,CONUS,False,False,False,False,False,True,False,False,10,1,4096.703993444033
+PR,San Juan,32.19956207,-111.0086136,CONUS,False,False,False,False,False,True,True,False,10,3,4712.331126181621
+PR,San Juan,37.859272,-107.8817825,CONUS,False,False,False,False,False,True,True,False,10,1,4569.1363124250865
+CT,Danbury,36.22912216,-83.22408295,CONUS,False,False,False,False,False,True,False,False,10,1,1045.8206213846486
+PR,San Sebastian,28.30057144,-82.71747589,CONUS,False,False,False,False,False,True,True,False,9,1,2005.7959786753838
+CO,Aurora,-33.93755341,18.57143784,Outside US bounding boxes,False,False,False,True,True,True,False,False,9,1,15020.425694330113
+CA,Fairfield,41.71979141,-87.69031525,CONUS,False,False,False,False,False,True,False,False,9,1,2795.3305332198834
+CA,Gardena,33.11784744,-96.83103943,CONUS,False,False,False,False,False,True,False,False,9,1,1982.1718410412582
+TX,Brownsville,32.14518356,-111.0048065,CONUS,False,False,False,False,False,True,False,False,9,1,1322.2575069531904
+OR,Portland,44.07877731,-12.1069355,Outside US bounding boxes,False,False,False,False,True,True,False,False,9,1,7983.728678916047
+MI,Holland,29.50280953,-98.5945282,CONUS,False,False,False,False,False,True,False,False,9,1,1984.4392695855156
+OR,Beaverton,45.4770813,-12.27913284,Outside US bounding boxes,False,False,False,False,True,True,False,False,9,1,7863.079848464342
+PR,San Juan,32.5500679,-94.85887909,CONUS,False,False,False,False,False,True,True,False,8,1,3257.8861523679766
+UT,Clearfield,30.21538734,-97.79601288,CONUS,False,False,False,False,False,True,False,False,8,1,1732.0386692524582
+PR,Caguas,35.12265015,-106.5784378,CONUS,False,False,False,False,False,True,True,False,8,1,4374.401976736773
+NY,Corona,32.64175415,-116.9799118,CONUS,False,False,False,False,False,True,False,False,8,1,3900.6391775215247
+NJ,North Bergen,29.54001236,-95.71935272,CONUS,False,False,False,False,False,True,False,False,8,1,2300.8475392500845
+IL,Chicago,29.50356865,-98.58555603,CONUS,False,False,False,False,False,True,False,False,8,1,1684.0656960174695
+MA,Dorchester Center,37.68590927,-120.9584427,CONUS,False,False,False,False,False,True,False,False,8,1,4218.953208703697
+GA,Douglasville,33.72855759,84.74267578,Outside US bounding boxes,False,False,False,True,True,True,False,False,8,1,12416.221132259607
+CA,Fullerton,42.38130951,-83.13815308,CONUS,False,False,False,False,False,True,False,False,8,1,3177.012193570268
+PR,San Juan,30.21860504,-97.9048996,CONUS,False,False,False,False,False,True,True,False,8,1,3448.250537683021
+MD,Hyattsville,33.97412872,-117.8788986,CONUS,False,False,False,False,False,True,False,False,8,1,3679.802721546012
+MD,Baltimore,37.74898148,-121.4085846,CONUS,False,False,False,False,False,True,False,False,7,1,3844.307824319691
+MI,Wyoming,18.248312,-85.68525696,Outside US bounding boxes,False,False,False,False,True,True,False,False,7,1,2695.4509071571356
+DE,Newark,36.29954147,-119.3316269,CONUS,False,False,False,False,False,True,False,False,7,1,3799.7083323424476
+GA,Lawrenceville,29.74219513,-95.47000122,CONUS,False,False,False,False,False,True,False,False,7,1,1143.9810459460548
+PR,San Juan,37.84978104,-107.8828506,CONUS,False,False,False,False,False,True,True,False,7,1,4568.922392303526
+PR,San Juan,47.92603684,-122.4178009,CONUS,False,False,False,False,False,True,True,False,7,1,6003.852957145441
+OR,Eugene,33.79669571,-111.9421921,CONUS,False,False,False,False,False,True,False,False,7,1,1550.4619353377711
+PR,Carolina,38.79130554,-77.64980316,CONUS,False,False,False,False,False,True,True,False,7,1,2531.0763968520696
+MI,Detroit,29.5480175,-95.18670654,CONUS,False,False,False,False,False,True,False,False,6,1,1783.5131271334508
+FL,Hollywood,36.67399597,-121.6583023,CONUS,False,False,False,False,False,True,False,False,6,1,4059.5972908639274
+PR,Carolina,34.2188797,-80.69784546,CONUS,False,False,False,False,False,True,True,False,6,2,2273.8520645783724
+PR,San Juan,38.55474854,-109.525383,CONUS,False,False,False,False,False,True,True,False,6,1,4728.731575491546
+WA,Lynnwood,38.05714035,-85.5557785,CONUS,False,False,False,False,False,True,False,False,6,1,3139.5294874264955
+NC,Asheboro,33.4812088,-111.6446762,CONUS,False,False,False,False,False,True,False,False,6,1,2983.4941166974127
+NJ,Newark,45.58964539,-122.7224197,CONUS,False,False,False,False,False,True,False,False,6,1,3911.6908643349766
+IL,Chicago,33.88656235,-117.9215698,CONUS,False,False,False,False,False,True,False,False,6,1,2772.148108786623
+CT,New Haven,32.75642395,-97.18035889,CONUS,False,False,False,False,False,True,False,False,5,1,2331.5523753798025
+IL,Chicago,34.43315125,-119.9102707,CONUS,False,False,False,False,False,True,False,False,5,1,2907.9247569630115
+MA,Brighton,32.74827194,-117.2449112,CONUS,False,False,False,False,False,True,False,False,5,1,4154.146003224241
+MA,Pittsfield,30.22239304,-95.88526154,CONUS,False,False,False,False,False,True,False,False,5,1,2585.6860975195746
+NC,Sanford,32.87441254,-96.90342712,CONUS,False,False,False,False,False,True,False,False,5,1,1672.4172681626037
+NY,Bay Shore,37.66708756,-120.9958801,CONUS,False,False,False,False,False,True,False,False,5,1,4020.230518593007
+NY,Brooklyn,32.71728134,-117.02565,CONUS,False,False,False,False,False,True,False,False,4,1,3900.8356534608197
+NC,Greenville,34.05759811,-118.1948013,CONUS,False,False,False,False,False,True,False,False,4,1,3554.4731411666367
+NJ,Newark,33.73387146,-117.7705612,CONUS,False,False,False,False,False,True,False,False,4,1,3889.9214468387877
+NY,Far Rockaway,37.69023132,-121.0020142,CONUS,False,False,False,False,False,True,False,False,4,1,4019.861872730009
+CT,New Haven,37.78180695,-85.49245453,CONUS,False,False,False,False,False,True,False,False,2,2,1133.6165783012048
+CT,New Haven,37.77542877,-85.49597931,CONUS,False,False,False,False,False,True,False,False,2,2,1134.1913969328389
+CT,New Haven,39.26873016,-84.75675201,CONUS,False,False,False,False,False,True,False,False,2,2,1015.2350708113455
+CT,New Haven,38.91280747,-92.28943634,CONUS,False,False,False,False,False,True,False,False,2,2,1651.1953054474304
+MN,Saint Paul,34.00076294,-117.8856812,CONUS,False,False,False,False,False,True,False,False,2,1,2429.6905353490642
+NY,Ithaca,33.66726303,-118.0185242,CONUS,False,False,False,False,False,True,False,False,2,1,3939.5095973608745
+PR,San Juan,26.26675415,-98.14239502,CONUS,False,False,False,False,False,True,True,False,2,2,3379.141761784969
+NJ,Princeton,39.64060593,-104.90625,CONUS,False,False,False,False,False,True,False,False,1,1,2594.636536909034
+PR,San Juan,32.80088425,-103.1942825,CONUS,False,False,False,False,False,True,True,False,1,1,4006.9957918869522
+PR,San Juan,39.49591446,-98.98998261,CONUS,False,False,False,False,False,True,True,True,1,1,3921.9179569264666

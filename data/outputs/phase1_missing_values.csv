@@ -1,0 +1,5 @@
+column,missing,missing_pct
+Customer Lname,8,0.004
+Customer Zipcode,3,0.002
+Order Zipcode,155679,86.24
+Product Description,180519,100.0

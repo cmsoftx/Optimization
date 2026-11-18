@@ -1,0 +1,24 @@
+# Raw Kaggle data is licensed third-party data (~190 MB) and contains customer
+# names/streets: never commit it. Download it with `python main.py download`.
+data/raw/*
+!data/raw/README.md
+
+# Large generated artefacts
+data/processed/*.csv
+data/processed/*.parquet
+models/*.pkl
+!data/processed/.gitkeep
+!models/.gitkeep
+
+# Kaggle credentials
+kaggle.json
+.kaggle/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+.DS_Store
