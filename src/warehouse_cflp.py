@@ -255,7 +255,8 @@ def evaluate_configuration(prob: NetworkProblem, open_mask: np.ndarray, assign: 
     closed_serving = int(((~open_mask)[assign[served]]).sum())
     return {
         "network": prob.network, "n_open": int(open_mask.sum()), "opening_cost": opening, "transport_cost": transport,
-        "handling_cost": handling, "total_cost": opening + transport + handling,
+        "handling_cost": handling, "cflp_objective_excl_handling": opening + transport,
+        "total_cost": opening + transport + handling,
         "avg_distance_km_order_weighted": float((d * w).sum() / w.sum()) if w.sum() > 0 else float("nan"),
         "max_distance_km": float(d.max()) if len(d) else float("nan"),
         "mean_utilization": float(np.nanmean(util)), "max_utilization": float(np.nanmax(util)),

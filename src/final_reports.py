@@ -46,6 +46,12 @@ def _facts() -> dict:
     f["summ"] = _r("final_performance_summary.csv")
     f["checks"] = _r("consistency_checks.csv")
     f["cands"] = _r("candidate_warehouses.csv")
+    zd = pd.read_csv(get_path("processed_dir") / "zone_daily_demand.csv", parse_dates=["date"])
+    pr = zd[(zd["network"] == "Puerto Rico") & (zd["date"] >= cfg["preprocessing"]["regime_break_date"])
+            & (zd["date"] <= "2018-01-27")]
+    w = pr.groupby(pr["date"].dt.to_period("W-SAT"))[["orders", "units"]].sum()
+    w["units_per_order"] = w["units"] / w["orders"]
+    f["pr_weeks"] = w.reset_index().rename(columns={"date": "week"}).assign(week=lambda d: d["week"].astype(str))
     tr = REP / "test_results.txt"
     f["tests"] = tr.read_text().strip().splitlines()[-1] if tr.exists() else "not recorded"
     return f
@@ -442,6 +448,49 @@ def build_final_report(f: dict) -> str:
         "",
         T(checks),
         "",
+        "## 16a. Reconciliation of reported CFLP costs",
+        "",
+        "Two CONUS figures appear in the outputs. They describe the **same optimal solution under the same "
+        "configuration** (`config.yaml` → `optimization.networks.CONUS`):",
+        "",
+        T(_reconcile(f)),
+        "",
+        "* `cflp_objective_excl_handling` = opening + transport. CBC minimises this and proves it optimal "
+        "(`cflp_solver_report.csv`, `objective_excl_handling`).",
+        "* `total_cost` adds the handling cost (handling cost per unit × forecast units). Handling is identical for every "
+        "feasible solution, so it cannot change the decision. It is included for operating-cost reporting.",
+        "* All comparison tables (`warehouse_algorithm_comparison.csv`, experiments) use `total_cost`, and therefore "
+        "include handling.",
+        "",
+        "## 16b. Puerto Rico forecast overestimation",
+        "",
+        "The selected Puerto Rico model (post-break average, regime reset) over-forecast **units** by "
+        f"{100 * _pr_bias(f, 'units'):+.1f}% over the 13 held-out weeks. **Orders** were within "
+        f"{100 * _pr_bias(f, 'orders'):+.1f}%. Weekly actuals after the break:",
+        "",
+        T3(f["pr_weeks"]),
+        "",
+        "* **Cause:** the 4 observed weeks used for calibration include the transitional week of 1–7 October 2017, at "
+        f"{f['pr_weeks']['units_per_order'].iat[0]:.2f} units/order. Every later week is exactly "
+        f"{f['pr_weeks']['units_per_order'].iloc[4:].mean():.2f}. A mean over those 4 weeks therefore overstates later "
+        "units by about 20%.",
+        "* **Consequence in Experiment C:** the forecast-based plan sized capacity for about 211 units/week against "
+        "175.5 realised. It opened a third warehouse, and its realised cost exceeded the historical-average plan's. "
+        "This result is reported as measured; nothing was tuned away.",
+        "* **Effect on the forward CFLP input:** none of this carries over. The forward forecast "
+        f"({f['demand'][f['demand'].network == 'Puerto Rico']['forecast_per_period_units'].sum():.1f} units/week) is "
+        "calibrated on the last 4 observed weeks (January 2018), all at 1.00 units/order. Whether it is accurate cannot "
+        "be verified, because the dataset ends on 2018-01-31.",
+        "* **Lesson:** after a structural break, calibration windows should exclude transition periods, or use robust "
+        "statistics such as the median. This is listed under future improvements, not applied retroactively.",
+        "",
+        "## 16c. Solver termination of every time-limited run",
+        "",
+        "A solution is labelled optimal only when CBC reports `optimal`. Every run that hit the time limit is listed "
+        "with its incumbent, lower bound and gap:",
+        "",
+        T(_time_limited(f)) if len(_time_limited(f)) else "_No run hit its time limit._",
+        "",
         "## 17. Limitations",
         "",
         "* **Simulated business parameters:** all costs, capacities and fleet parameters are assumptions. Absolute dollar "
@@ -495,6 +544,40 @@ def build_final_report(f: dict) -> str:
         "",
     ]
     return "\n".join(L)
+
+
+def _reconcile(f: dict) -> pd.DataFrame:
+    res = f["res"][f["res"]["network"].isin(["CONUS", "Puerto Rico"])].copy()
+    sv = f["solver"].set_index("network")
+    res["solver_objective_excl_handling"] = res["network"].map(sv["objective_excl_handling"])
+    res["solver_lower_bound"] = res["network"].map(sv["lower_bound"])
+    res["termination"] = res["network"].map(sv["termination"])
+    return res[["network", "opening_cost", "transport_cost", "cflp_objective_excl_handling", "solver_objective_excl_handling",
+                "solver_lower_bound", "handling_cost", "total_cost", "termination"]]
+
+
+def _pr_bias(f: dict, target: str) -> float:
+    fe = f["fe"]
+    x = fe[(fe.granularity == "W") & (fe.eval_set == "post_break_adapted") & (fe.network == "Puerto Rico") & (fe.tier == "all")
+           & (fe.level == "network_period") & (fe.target == target) & (fe.model == "post_break_average")]
+    return float(x["bias_pct"].iat[0])
+
+
+def _time_limited(f: dict) -> pd.DataFrame:
+    rows = []
+    s = f["sens"]
+    s = s[(s["experiment"] == "warehouse") & (s["termination"] != "optimal")]
+    for r in s.itertuples():
+        rows.append({"run": f"Exp D {r.parameter}={r.value}", "network": r.network, "termination": r.termination,
+                     "best_objective_incl_penalty": r.best_objective_incl_penalty, "lower_bound": r.lower_bound,
+                     "relative_gap": r.relative_gap, "runtime_s": r.runtime_s, "unserved_units": r.unserved_units})
+    fi = f["fi"]
+    for r in fi[fi["plan_solver_termination"] != "optimal"].itertuples():
+        rows.append({"run": f"Exp C plan: {r.scenario}", "network": r.network, "termination": r.plan_solver_termination,
+                     "best_objective_incl_penalty": r.plan_best_objective_incl_penalty, "lower_bound": r.plan_lower_bound,
+                     "relative_gap": r.plan_relative_gap, "runtime_s": r.plan_runtime_s,
+                     "unserved_units": r.planned_unserved_units})
+    return pd.DataFrame(rows)
 
 
 def build_viva(f: dict) -> str:

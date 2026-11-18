@@ -134,7 +134,9 @@ def experiment_c() -> pd.DataFrame:
                 "regret_vs_oracle": recourse["total_cost"] - oracle_cost,
                 "regret_vs_oracle_pct": 100 * (recourse["total_cost"] - oracle_cost) / oracle_cost,
                 "plan_runtime_s": rt, "plan_solver_termination": plan.termination,
-                "plan_relative_gap": plan.gap, "plan_proven_optimal": plan.termination == "optimal"})
+                "plan_best_objective_incl_penalty": plan.objective, "plan_lower_bound": plan.lower_bound,
+                "plan_relative_gap": plan.gap, "plan_proven_optimal": plan.termination == "optimal",
+                "recourse_termination": rec.termination, "recourse_relative_gap": rec.gap})
     df = pd.DataFrame(rows)
     for net in NETWORKS:
         g = df[df["network"] == net].set_index("scenario")
@@ -153,7 +155,8 @@ def _cflp_point(net: str, parameter: str, value, overrides: dict, demand=None) -
     ev = evaluate_configuration(prob, sol.open, sol.assign, sol.unserved_fraction)
     return {"experiment": "warehouse", "network": net, "parameter": parameter, "value": value, **ev,
             "n_zones": prob.n_zones, "n_candidates": prob.n_candidates, "termination": sol.termination,
-            "relative_gap": sol.gap, "runtime_s": time.perf_counter() - t0}
+            "proven_optimal": sol.termination == "optimal", "best_objective_incl_penalty": sol.objective,
+            "lower_bound": sol.lower_bound, "relative_gap": sol.gap, "runtime_s": time.perf_counter() - t0}
 
 
 def zones_for_diameter(diameter_km: float, network: str = "CONUS") -> pd.DataFrame:
@@ -267,7 +270,8 @@ def experiment_e() -> pd.DataFrame:
                          "max_utilization_if_allocation_kept": kept["max_utilization"],
                          "reallocated_total_cost": ev["total_cost"], "reallocated_transport_cost": ev["transport_cost"],
                          "reallocated_max_utilization": ev["max_utilization"], "unserved_units": ev["unserved_units"],
-                         "warehouse_plan_feasible": ev["feasible"],
+                         "warehouse_plan_feasible": ev["feasible"], "reallocation_termination": rec.termination,
+                         "reallocation_relative_gap": rec.gap,
                          "route_vehicles": rt["vehicles"], "route_distance_km": rt["total_distance_km"],
                          "route_cost": rt["total_route_cost"], "route_unserved_packages": rt["unserved_packages"],
                          "route_feasible": rt["feasible"],
