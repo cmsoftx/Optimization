@@ -4,6 +4,7 @@ Phases are added incrementally. Currently available:
 
     python main.py download [--zip PATH] [--force]   # acquire the Kaggle dataset
     python main.py inspect                            # Phase 1 dataset inspection
+    python main.py preprocess                         # Phase 2 cleaning, zones, EDA
 """
 from __future__ import annotations
 
@@ -35,6 +36,24 @@ def cmd_inspect(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_preprocess(_: argparse.Namespace) -> int:
+    from src.demand_analytics import run_demand_analytics
+    from src.preprocessing import run_preprocessing
+    from src.reports import write_phase2_report
+    from src.visualization import make_phase2_figures
+
+    pre = run_preprocessing(write=True)
+    tables = run_demand_analytics(pre.items, pre.orders, pre.zones, pre.zone_daily, write=True)
+    figs = make_phase2_figures(pre.zones, pre.zone_daily, tables)
+    write_phase2_report(pre, tables)
+    rec = pre.reconciliation
+    print(f"Reconciliation: {int(rec['passed'].sum())}/{len(rec)} checks passed")
+    print(pre.zones.groupby("network").agg(zones=("zone_id", "size"), orders=("n_orders", "sum"),
+                                           units=("units", "sum")).to_string())
+    print(f"{len(figs)} figures written; report: reports/phase2_preprocessing_eda.md")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -44,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--force", action="store_true", help="Re-download even if present")
     d.set_defaults(func=cmd_download)
     sub.add_parser("inspect", help="Phase 1: dataset inspection").set_defaults(func=cmd_inspect)
+    sub.add_parser("preprocess", help="Phase 2: cleaning, demand zones, EDA").set_defaults(func=cmd_preprocess)
     args = p.parse_args(argv)
     try:
         return args.func(args)

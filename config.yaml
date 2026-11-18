@@ -44,3 +44,50 @@ geography:
   puerto_rico_bbox:  {lat_min: 17.8, lat_max: 18.6, lon_min: -67.3, lon_max: -65.2}
   hawaii_bbox:       {lat_min: 18.8, lat_max: 22.4, lon_min: -160.3, lon_max: -154.7}
   alaska_bbox:       {lat_min: 51.0, lat_max: 71.5, lon_min: -180.0, lon_max: -129.9}
+
+# ---------------------------------------------------------------------------
+# Phase 2: cleaning, network scope and demand zones
+# ---------------------------------------------------------------------------
+preprocessing:
+  # Orders that never ship are not demand. In the raw data every CANCELED
+  # and SUSPECTED_FRAUD order has Delivery Status = "Shipping canceled".
+  non_demand_order_statuses: [CANCELED, SUSPECTED_FRAUD]
+  # Columns removed from processed outputs, beyond the PII columns above.
+  drop_columns:
+    Product Description: "100% missing"
+    Product Status: "constant (0 for every row)"
+    Product Image: "URL only, no analytical content"
+    Customer Zipcode: "quasi-identifier, not used (coordinates are used instead)"
+    Order Zipcode: "86% missing; destination geography is not used"
+  regime_break_date: "2017-10-01"   # detected in Phase 1 (units/month fall ~80%)
+  # all: every valid order is demand at the customer coordinate (approved scope).
+  # domestic_only: keep only orders whose Order Country is US or Puerto Rico.
+  destination_scope: all
+  domestic_destination_countries: [Estados Unidos, Puerto Rico]
+
+networks:
+  # Coordinate region -> logistics network. Regions not listed are excluded.
+  CONUS:       {code: US, role: primary optimization network}
+  Puerto Rico: {code: PR, role: separate island logistics network}
+  Hawaii:      {code: HI, role: demand-analysis region only}
+
+demand_zones:
+  # Complete-linkage clustering of validated customer coordinates: every pair
+  # of customers inside one zone is at most `max_diameter_km` apart.
+  # These diameters are MODELLING CHOICES, not dataset values.
+  max_diameter_km: {CONUS: 50, Puerto Rico: 10, Hawaii: 10}
+
+validation:
+  # Public, approximate city-centre coordinates used only to sanity-check how
+  # the dataset's Latitude/Longitude should be interpreted. External reference.
+  reference_cities:
+    - {state: IL, city: Chicago,     lat: 41.8781, lon: -87.6298}
+    - {state: CA, city: Los Angeles, lat: 34.0522, lon: -118.2437}
+    - {state: NY, city: Brooklyn,    lat: 40.6782, lon: -73.9442}
+    - {state: TX, city: Houston,     lat: 29.7604, lon: -95.3698}
+    - {state: NY, city: New York,    lat: 40.7128, lon: -74.0060}
+    - {state: PA, city: Philadelphia, lat: 39.9526, lon: -75.1652}
+    - {state: CA, city: San Diego,   lat: 32.7157, lon: -117.1611}
+    - {state: PR, city: San Juan,    lat: 18.4655, lon: -66.1057}
+    - {state: PR, city: Caguas,      lat: 18.2341, lon: -66.0485}
+    - {state: HI, city: Honolulu,    lat: 21.3069, lon: -157.8583}

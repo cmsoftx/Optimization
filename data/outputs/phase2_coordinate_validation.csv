@@ -1,0 +1,17 @@
+evidence,subject,n_customers,data_median_lat,data_median_lon,reference_lat,reference_lon,km_median_to_reference,p50_km_customer_to_city_median,p90_km_customer_to_city_median,value
+reference city centre,"Chicago, IL",430,41.8953,-87.6933,41.8781,-87.6298,5.59,6.91,21.63,
+reference city centre,"Los Angeles, CA",392,34.0343,-118.2775,34.0522,-118.2437,3.69,7.8,14.71,
+reference city centre,"Brooklyn, NY",370,40.6457,-73.9452,40.6782,-73.9442,3.61,3.72,7.21,
+reference city centre,"Houston, TX",148,29.7806,-95.4245,29.7604,-95.3698,5.73,15.7,24.36,
+reference city centre,"New York, NY",193,40.7703,-73.9585,40.7128,-74.006,7.55,4.85,13.77,
+reference city centre,"Philadelphia, PA",163,39.9586,-75.1819,39.9526,-75.1652,1.57,4.24,13.1,
+reference city centre,"San Diego, CA",154,32.7586,-117.1374,32.7157,-117.1611,5.26,4.97,20.01,
+reference city centre,"San Juan, PR",10,18.386,-66.094,18.4655,-66.1057,8.93,0.0,8.09,
+reference city centre,"Caguas, PR",7650,18.2486,-66.3705,18.2341,-66.0485,34.05,5.03,35.48,
+reference city centre,"Honolulu, HI",74,21.3056,-157.8387,21.3069,-157.8583,2.04,3.72,8.66,
+customer to own-city median,CONUS,12422,,,,,,2.92,15.98,
+customer to own-city median,Hawaii,141,,,,,,0.81,8.18,
+customer to own-city median,Puerto Rico,7867,,,,,,4.89,35.47,
+domestic destination share (orders),CONUS,12204,,,,,,,,0.1276
+domestic destination share (orders),Hawaii,137,,,,,,,,0.0955
+domestic destination share (orders),Puerto Rico,7700,,,,,,,,0.1226

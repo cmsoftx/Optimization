@@ -1,0 +1,24 @@
+step,stage,rule,action,records_affected,orders_affected,units_affected,records_remaining_in_demand_set,orders_remaining_in_demand_set,rationale
+1,load,Read raw DataCoSupplyChainDataset.csv (Latin-1),none,180519,65752,384079,180519,65752,Raw file is opened read-only and never modified.
+2,privacy,"Drop PII columns: Customer Fname, Customer Lname, Customer Street, Customer Email, Customer Password",drop columns,180519,0,0,,,Names and street addresses identify people. Email/password are masked but are dropped too.
+3,columns,Drop column 'Product Description',drop column,180519,0,0,,,100% missing
+4,columns,Drop column 'Product Status',drop column,180519,0,0,,,constant (0 for every row)
+5,columns,Drop column 'Product Image',drop column,180519,0,0,,,"URL only, no analytical content"
+6,columns,Drop column 'Customer Zipcode',drop column,180519,0,0,,,"quasi-identifier, not used (coordinates are used instead)"
+7,columns,Drop column 'Order Zipcode',drop column,180519,0,0,,,86% missing; destination geography is not used
+8,columns,Rename columns to snake_case,rename,0,0,0,,,Stable programmatic names. The mapping is in data/outputs/phase2_column_mapping.csv.
+9,validity,Unparseable order/shipping date,would exclude,0,0,0,,,No failures found.
+10,validity,Exact duplicate rows,would exclude,0,0,0,,,No duplicates found.
+11,demand definition,"Order Status in ['CANCELED', 'SUSPECTED_FRAUD']",exclude from demand,7754,2855,16488,172765,62897,"These orders never ship (Delivery Status = 'Shipping canceled'), so they are not physical demand. The rows stay in cleaned_data with is_demand=False."
+12,geography,"Coordinate fails any Phase 1 check (sign flip, truncated longitude, placeholder, >1000 km from state median, PR/mainland conflict)",exclude from spatial demand,2608,886,5626,170157,62011,Not corrected: the true location cannot be recovered reliably. Imputing a city median would invent locations.
+13,geography,Valid coordinate outside CONUS / Puerto Rico / Hawaii,exclude from spatial demand,0,0,0,170157,62011,No logistics network is defined for that region.
+14,network scope,Assign to network 'CONUS',label,103265,37617,219308,,,Role: primary optimization network.
+15,network scope,Assign to network 'Puerto Rico',label,65771,23975,140273,,,Role: separate island logistics network.
+16,network scope,Assign to network 'Hawaii',label,1121,419,2384,,,Role: demand-analysis region only.
+17,temporal,order_datetime >= 2017-10-01,label regime='post_2017_10',8158,8012,8390,,,The data-generating process changes here (Phase 1). Rows are kept and labelled so that forecasting can model the change explicitly.
+18,network scope,Order Country is international,label only (demand stays at customer coordinate),146741,54230,310578,170157,62011,"Approved scope: demand is located at the customer coordinate. International Order Country values are never routed. Their share is the same in every network (see coordinate validation), so the field is not geographically linked to the customer."
+19,demand zones,"Cluster CONUS coordinates into zones (complete linkage, diameter <= 50 km)",label zone_id,103265,37617,219308,,,312 zones from 4107 unique coordinates.
+20,demand zones,"Cluster Hawaii coordinates into zones (complete linkage, diameter <= 10 km)",label zone_id,1121,419,2384,,,6 zones from 28 unique coordinates.
+21,demand zones,"Cluster Puerto Rico coordinates into zones (complete linkage, diameter <= 10 km)",label zone_id,65771,23975,140273,,,25 zones from 7381 unique coordinates.
+22,validation,Aggregation reconciliation (items -> orders -> zone-day),assert,0,0,0,,,37/37 checks passed.
+23,final,Spatial demand set,result,170157,62011,361965,170157,62011,Rows used by forecasting and optimisation.

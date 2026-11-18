@@ -1,0 +1,97 @@
+scope,metric,value,unit,source
+raw,order-item rows,180519,rows,dataset
+raw,orders,65752,orders,dataset
+raw,customers,20652,customers,dataset
+demand set,order-item rows,170157,rows,dataset
+demand set,orders (deliveries),62011,orders,dataset
+demand set,units,361965,units,dataset
+demand set,share of raw units retained,0.9424233035391156,ratio,derived
+demand set,date range,2015-01-01 to 2018-01-31,,dataset
+CONUS,orders,37617,orders,dataset
+CONUS,units,219308,units,dataset
+CONUS,customers,12204,customers,dataset
+CONUS,unique coordinates,4107,points,dataset
+CONUS,demand zones,312,zones,modelling choice
+CONUS,zone diameter limit,50,km,modelling choice
+CONUS,zone units Gini,0.6573398061408074,0-1,derived
+CONUS,zones needed for 80% of units,95,zones,derived
+CONUS,largest zone,"US-Z001 (Brooklyn, NY)",,derived
+CONUS,largest zone unit share,0.06365476863589108,ratio,derived
+CONUS,monthly units CV (pre-break),0.05398601444780285,ratio,derived
+Hawaii,orders,419,orders,dataset
+Hawaii,units,2384,units,dataset
+Hawaii,customers,137,customers,dataset
+Hawaii,unique coordinates,28,points,dataset
+Hawaii,demand zones,6,zones,modelling choice
+Hawaii,zone diameter limit,10,km,modelling choice
+Hawaii,zone units Gini,0.26034675615212527,0-1,derived
+Hawaii,zones needed for 80% of units,4,zones,derived
+Hawaii,largest zone,"HI-Z001 (Honolulu, HI)",,derived
+Hawaii,largest zone unit share,0.2533557046979866,ratio,derived
+Hawaii,monthly units CV (pre-break),0.3852156775402678,ratio,derived
+Puerto Rico,orders,23975,orders,dataset
+Puerto Rico,units,140273,units,dataset
+Puerto Rico,customers,7700,customers,dataset
+Puerto Rico,unique coordinates,7381,points,dataset
+Puerto Rico,demand zones,25,zones,modelling choice
+Puerto Rico,zone diameter limit,10,km,modelling choice
+Puerto Rico,zone units Gini,0.8857818682141253,0-1,derived
+Puerto Rico,zones needed for 80% of units,2,zones,derived
+Puerto Rico,largest zone,"PR-Z001 (Caguas, PR)",,derived
+Puerto Rico,largest zone unit share,0.5401467139078796,ratio,derived
+Puerto Rico,monthly units CV (pre-break),0.047558015176875496,ratio,derived
+CONUS | pre_2017_10,orders_per_day,32.58565737051793,,derived
+CONUS | pre_2017_10,units_per_day,213.33964143426294,,derived
+CONUS | pre_2017_10,units_per_order,6.547041203081061,,derived
+CONUS | pre_2017_10,items_per_order,3.0039735909035334,,derived
+CONUS | pre_2017_10,categories,32,,derived
+CONUS | post_2017_10,orders_per_day,39.84552845528455,,derived
+CONUS | post_2017_10,units_per_day,41.58536585365854,,derived
+CONUS | post_2017_10,units_per_order,1.0436645582534176,,derived
+CONUS | post_2017_10,items_per_order,1.0175474392981023,,derived
+CONUS | post_2017_10,categories,31,,derived
+CONUS | post_2017_10,share of customers seen before break,0.009181799632728015,ratio,derived
+Hawaii | pre_2017_10,orders_per_day,0.36254980079681276,,derived
+Hawaii | pre_2017_10,units_per_day,2.3197211155378485,,derived
+Hawaii | pre_2017_10,units_per_order,6.398351648351649,,derived
+Hawaii | pre_2017_10,items_per_order,2.9285714285714284,,derived
+Hawaii | pre_2017_10,categories,26,,derived
+Hawaii | post_2017_10,orders_per_day,0.44715447154471544,,derived
+Hawaii | post_2017_10,units_per_day,0.44715447154471544,,derived
+Hawaii | post_2017_10,units_per_order,1.0,,derived
+Hawaii | post_2017_10,items_per_order,1.0,,derived
+Hawaii | post_2017_10,categories,17,,derived
+Hawaii | post_2017_10,share of customers seen before break,0.0,ratio,derived
+Puerto Rico | pre_2017_10,orders_per_day,20.83565737051793,,derived
+Puerto Rico | pre_2017_10,units_per_day,136.50697211155378,,derived
+Puerto Rico | pre_2017_10,units_per_order,6.55160380515321,,derived
+Puerto Rico | pre_2017_10,items_per_order,2.9951240499067833,,derived
+Puerto Rico | pre_2017_10,categories,32,,derived
+Puerto Rico | post_2017_10,orders_per_day,24.84552845528455,,derived
+Puerto Rico | post_2017_10,units_per_day,26.178861788617887,,derived
+Puerto Rico | post_2017_10,units_per_order,1.0536649214659686,,derived
+Puerto Rico | post_2017_10,items_per_order,1.0196335078534031,,derived
+Puerto Rico | post_2017_10,categories,31,,derived
+Puerto Rico | post_2017_10,share of customers seen before break,0.010471204188481676,ratio,derived
+CONUS | post_2017_10,weekday orders index range (max-min),0.028874436046170904,ratio,derived
+CONUS | pre_2017_10,weekday orders index range (max-min),0.01845583537415274,ratio,derived
+Hawaii | post_2017_10,weekday orders index range (max-min),0.5845511482254698,ratio,derived
+Hawaii | pre_2017_10,weekday orders index range (max-min),0.5207209275628515,ratio,derived
+Puerto Rico | post_2017_10,weekday orders index range (max-min),0.057323165921640884,ratio,derived
+Puerto Rico | pre_2017_10,weekday orders index range (max-min),0.0472013244353936,ratio,derived
+CONUS,zone order-share Spearman rho pre vs post,0.933530716727008,,derived
+Hawaii,zone order-share Spearman rho pre vs post,0.9276336570439175,,derived
+Puerto Rico,zone order-share Spearman rho pre vs post,0.7058816518888612,,derived
+CONUS,zero-demand share per zone-day,0.9110555593474848,ratio,derived
+Hawaii,zero-demand share per zone-day,0.9401064773735581,ratio,derived
+Puerto Rico,zero-demand share per zone-day,0.8527062999112689,ratio,derived
+CONUS,zero-demand share per zone-week,0.6484647040202596,ratio,derived
+Hawaii,zero-demand share per zone-week,0.6584362139917695,ratio,derived
+Puerto Rico,zero-demand share per zone-week,0.6671604938271605,ratio,derived
+CONUS,zero-demand share per zone-month,0.3444213444213444,ratio,derived
+Hawaii,zero-demand share per zone-month,0.21621621621621623,ratio,derived
+Puerto Rico,zero-demand share per zone-month,0.35567567567567565,ratio,derived
+destination,destination_domestic vs network: Cramer's V,0.0104715233110035,,derived
+destination,destination_domestic vs network: p-value,0.033378613300311326,,derived
+destination,destination_domestic vs customer_state (CONUS): Cramer's V,0.03934257984003721,,derived
+destination,destination_domestic vs customer_state (CONUS): p-value,0.06053640542227607,,derived

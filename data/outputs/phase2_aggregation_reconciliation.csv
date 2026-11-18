@@ -1,0 +1,38 @@
+network,check,value_a,value_b,passed
+CONUS,units: items == orders,219308.0,219308.0,True
+CONUS,units: orders == zone-day,219308.0,219308.0,True
+CONUS,units: orders == zone table,219308.0,219308.0,True
+CONUS,orders: distinct item order_id == order rows,37617.0,37617.0,True
+CONUS,orders: order rows == zone-day orders,37617.0,37617.0,True
+CONUS,items: item rows == sum n_items,103265.0,103265.0,True
+CONUS,sales: items == zone-day,21037761.4131,21037761.4131,True
+CONUS,every order has exactly one zone,0.0,0.0,True
+CONUS,orders with >1 zone across items,0.0,0.0,True
+CONUS,customers with >1 zone,0.0,0.0,True
+CONUS,zone-day grid is complete (zones x days),351624.0,351624.0,True
+CONUS,max zone radius <= diameter (50 km),46.545,50.0,True
+Hawaii,units: items == orders,2384.0,2384.0,True
+Hawaii,units: orders == zone-day,2384.0,2384.0,True
+Hawaii,units: orders == zone table,2384.0,2384.0,True
+Hawaii,orders: distinct item order_id == order rows,419.0,419.0,True
+Hawaii,orders: order rows == zone-day orders,419.0,419.0,True
+Hawaii,items: item rows == sum n_items,1121.0,1121.0,True
+Hawaii,sales: items == zone-day,232294.5846,232294.5846,True
+Hawaii,every order has exactly one zone,0.0,0.0,True
+Hawaii,orders with >1 zone across items,0.0,0.0,True
+Hawaii,customers with >1 zone,0.0,0.0,True
+Hawaii,zone-day grid is complete (zones x days),6762.0,6762.0,True
+Hawaii,max zone radius <= diameter (10 km),4.577,10.0,True
+Puerto Rico,units: items == orders,140273.0,140273.0,True
+Puerto Rico,units: orders == zone-day,140273.0,140273.0,True
+Puerto Rico,units: orders == zone table,140273.0,140273.0,True
+Puerto Rico,orders: distinct item order_id == order rows,23975.0,23975.0,True
+Puerto Rico,orders: order rows == zone-day orders,23975.0,23975.0,True
+Puerto Rico,items: item rows == sum n_items,65771.0,65771.0,True
+Puerto Rico,sales: items == zone-day,13410388.6952,13410388.6952,True
+Puerto Rico,every order has exactly one zone,0.0,0.0,True
+Puerto Rico,orders with >1 zone across items,0.0,0.0,True
+Puerto Rico,customers with >1 zone,0.0,0.0,True
+Puerto Rico,zone-day grid is complete (zones x days),28175.0,28175.0,True
+Puerto Rico,max zone radius <= diameter (10 km),7.341,10.0,True
+ALL,no item belongs to two networks,0.0,0.0,True

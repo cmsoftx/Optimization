@@ -10,8 +10,8 @@ Search (OR-Tools) → experiments → Streamlit dashboard.
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Dataset inspection: structure, quality, limitations | ✅ done (`reports/phase1_dataset_inspection.md`) |
-| 2 | Preprocessing and EDA | ⏳ next |
-| 3 | Demand forecasting (XGBoost) | — |
+| 2 | Preprocessing, demand zones, EDA | ✅ done (`reports/phase2_preprocessing_eda.md`) |
+| 3 | Demand forecasting (XGBoost) | ⏳ next (awaiting Phase 2 review) |
 | 4 | CFLP (Pyomo + CBC) | — |
 | 5 | Genetic algorithm vs CFLP | — |
 | 6 | CVRP + Guided Local Search | — |
@@ -28,6 +28,7 @@ sudo apt-get install coinor-cbc          # MILP solver used by the CFLP (HiGHS i
 python main.py download                  # Kaggle API (see data/raw/README.md), or:
 python main.py download --zip archive.zip
 python main.py inspect                   # Phase 1 report + CSVs
+python main.py preprocess                # Phase 2: cleaned data, zones, EDA, figures (~30 s)
 pytest -q
 ```
 
@@ -44,6 +45,16 @@ pytest -q
   Forecasting must handle this regime change.
 * The dataset contains no warehouses, capacities, costs, fleet or road distances. These are introduced as
   labelled simulation assumptions in `config.yaml`.
+
+## Key findings from Phase 2
+
+* Spatial demand set: 62,011 orders and 361,965 units (94.2% of raw units), after removing cancelled
+  or fraud orders that never ship and invalid coordinates. Rows are flagged, not deleted.
+* Demand zones are built by complete-linkage clustering with a guaranteed maximum diameter:
+  312 CONUS zones (≤ 50 km), 25 Puerto Rico zones (≤ 10 km) and 6 Hawaii zones (≤ 10 km).
+* All 37 aggregation reconciliation checks pass (item → order → zone-day conservation).
+* At the 2017-10 break, orders per day rise but units per order fall about 6x, customers are new and the
+  product mix changes. Zone demand *shares* stay stable (Spearman ρ = 0.93 in CONUS).
 
 ## Layout
 
