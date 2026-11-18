@@ -5,6 +5,7 @@ Phases are added incrementally. Currently available:
     python main.py download [--zip PATH] [--force]   # acquire the Kaggle dataset
     python main.py inspect                            # Phase 1 dataset inspection
     python main.py preprocess                         # Phase 2 cleaning, zones, EDA
+    python main.py forecast                           # Phase 3 demand forecasting
 """
 from __future__ import annotations
 
@@ -54,6 +55,26 @@ def cmd_preprocess(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_forecast(_: argparse.Namespace) -> int:
+    import pandas as pd
+
+    from src.config import get_path
+    from src.forecasting import run_phase3
+    from src.reports import write_phase3_report
+    from src.visualization import make_phase3_figures
+
+    proc = get_path("processed_dir")
+    zd = pd.read_csv(proc / "zone_daily_demand.csv", parse_dates=["date"])
+    zones = pd.read_csv(proc / "demand_zones.csv")
+    res = run_phase3(zd, zones, write=True)
+    pw = res.runs["W"].predictions
+    figs = make_phase3_figures(pw, None, res.evaluation, res.importance, res.selection, res.cflp)
+    write_phase3_report(res)
+    print(res.selection.to_string(index=False))
+    print(f"{len(figs)} figures written; report: reports/phase3_forecasting_report.md")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -64,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     d.set_defaults(func=cmd_download)
     sub.add_parser("inspect", help="Phase 1: dataset inspection").set_defaults(func=cmd_inspect)
     sub.add_parser("preprocess", help="Phase 2: cleaning, demand zones, EDA").set_defaults(func=cmd_preprocess)
+    sub.add_parser("forecast", help="Phase 3: demand forecasting").set_defaults(func=cmd_forecast)
     args = p.parse_args(argv)
     try:
         return args.func(args)

@@ -91,3 +91,44 @@ validation:
     - {state: PR, city: San Juan,    lat: 18.4655, lon: -66.1057}
     - {state: PR, city: Caguas,      lat: 18.2341, lon: -66.0485}
     - {state: HI, city: Honolulu,    lat: 21.3069, lon: -157.8583}
+
+# ---------------------------------------------------------------------------
+# Phase 3: demand forecasting
+# ---------------------------------------------------------------------------
+forecasting:
+  networks: [CONUS, Puerto Rico]   # Hawaii is analysis-only (approved scope)
+  targets: [orders, units]
+  primary_granularity: W
+  granularity:
+    W:   # weeks Sunday-Saturday, so the week of 2017-10-01 starts exactly at the break
+      period_freq: W-SAT
+      lags: [1, 2, 3, 4]
+      windows: [4, 8, 13]
+      warmup: 13                   # first periods without full feature history are dropped
+      ma_candidates: [4, 8, 13]
+      adapt_periods: 4             # post-break periods observed before the adapted forecast
+    M:
+      period_freq: M
+      lags: [1, 2, 3]
+      windows: [3, 6]
+      warmup: 6
+      ma_candidates: [3, 6]
+      adapt_periods: 1
+  # Chronological windows (period START dates, inclusive). Train = everything before validation.
+  splits:
+    pre_break:  {validation_start: "2017-01-01", test_start: "2017-06-01", test_end: "2017-09-30"}
+    post_break: {validation_start: "2017-06-01", test_start: "2017-10-01", test_end: "2018-01-31"}
+  zone_tiers: {high: 0.10, medium: 0.40}   # top 10% / next 40% / bottom 50% by training orders
+  random_forest_grid:
+    - {max_depth: null, min_samples_leaf: 10, max_features: 0.5}
+    - {max_depth: 12,   min_samples_leaf: 20, max_features: 0.5}
+    - {max_depth: null, min_samples_leaf: 5,  max_features: sqrt}
+    - {max_depth: 8,    min_samples_leaf: 20, max_features: 1.0}
+  random_forest_trees: 300
+  xgboost_grid:
+    objective: ["reg:squarederror", "count:poisson"]
+    max_depth: [3, 5]
+    min_child_weight: [1, 10]
+  xgboost_fixed: {learning_rate: 0.05, n_estimators: 2000, subsample: 0.8, colsample_bytree: 0.8,
+                  reg_lambda: 1.0, reg_alpha: 0.0, early_stopping_rounds: 100}
+  cflp_horizon_periods: 13         # forward forecast handed to the CFLP (one quarter)

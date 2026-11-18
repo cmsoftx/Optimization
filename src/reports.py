@@ -1,10 +1,12 @@
 """Generated Markdown reports. Every number is read from computed tables."""
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from .config import get_path, load_config
 from .data_inspection import _md_table
+from .data_inspection import _md_table as _md_table_base
 from .distance_calculator import haversine_km
 
 
@@ -242,3 +244,507 @@ def build_phase2_report(pre, tables: dict) -> str:
 def write_phase2_report(pre, tables: dict) -> None:
     path = get_path("reports_dir") / "phase2_preprocessing_eda.md"
     path.write_text(build_phase2_report(pre, tables), encoding="utf-8")
+
+
+# =========================================================================== #
+# Phase 3 report
+# =========================================================================== #
+XGB_MATH = r"""
+### How XGBoost works (as used here)
+
+**Model.** The forecast is an additive ensemble of $K$ regression trees,
+$$\hat y_i=\phi(\mathbf x_i)=\sum_{k=1}^{K} f_k(\mathbf x_i),\qquad f_k\in\mathcal F,$$
+where each tree $f_k$ maps a feature vector (lags, rolling means, shares, …) to a leaf
+with weight $w_{q(\mathbf x)}$.
+
+**Regularised objective.**
+$$\mathcal L=\sum_i l(y_i,\hat y_i)+\sum_k\Omega(f_k),\qquad
+\Omega(f)=\gamma T+\tfrac12\lambda\lVert w\rVert^2+\alpha\lVert w\rVert_1 ,$$
+where $T$ is the number of leaves. The loss $l$ was chosen on validation from
+squared error $(y-\hat y)^2$ and the Poisson deviance
+$l=\hat\mu-y\log\hat\mu$ with $\hat\mu=e^{\hat y}$. Poisson suits non-negative counts such as
+orders. Here $\lambda=1$ and $\alpha=0$. Tree depth and `min_child_weight` are tuned.
+
+**Gradient boosting (second-order).** Trees are added greedily. At round $t$, the loss is
+expanded to second order around the current prediction:
+$$\mathcal L^{(t)}\approx\sum_i\big[g_i f_t(\mathbf x_i)+\tfrac12 h_i f_t^2(\mathbf x_i)\big]+\Omega(f_t),\quad
+g_i=\partial_{\hat y}l,\; h_i=\partial^2_{\hat y}l .$$
+For a fixed tree structure, with $G_j=\sum_{i\in I_j}g_i$ and $H_j=\sum_{i\in I_j}h_i$ over the rows in leaf $j$:
+$$w_j^*=-\frac{G_j}{H_j+\lambda},\qquad
+\text{score}=-\tfrac12\sum_j\frac{G_j^2}{H_j+\lambda}+\gamma T .$$
+A split is kept only if its gain
+$\tfrac12\big[\tfrac{G_L^2}{H_L+\lambda}+\tfrac{G_R^2}{H_R+\lambda}-\tfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\big]-\gamma$
+is positive. Each new tree is shrunk by the learning rate $\eta=0.05$:
+$\hat y^{(t)}=\hat y^{(t-1)}+\eta f_t$.
+
+**Regularisation in practice.** The settings are: $\lambda$ (L2 on leaf weights), `max_depth`,
+`min_child_weight` (minimum $H_j$ in a leaf), row subsampling 0.8, column subsampling 0.8,
+shrinkage $\eta$, and **early stopping**. The number of trees is the round with the best
+validation MAE, with patience of 100 rounds. That number is then reused when the model is refit
+on train + validation.
+
+**Feature importance.** *Gain* is the total split gain (the formula above) contributed by a
+feature, normalised to sum to 1. *Weight* is how often a feature is used to split. *Cover* is the
+total Hessian of the rows it splits. Gain-based importance is biased towards high-cardinality,
+correlated features, so **permutation importance** is also reported. It is the rise in test-set MAE
+when one feature's column is randomly shuffled (5 repeats), which measures the feature's real
+contribution to accuracy.
+"""
+
+
+def _fmt(x, d=3):
+    return "" if pd.isna(x) else f"{x:.{d}f}"
+
+
+def build_phase3_report(res) -> str:
+    from functools import partial
+    _md_table = partial(_md_table_base, floatfmt="{:,.3f}")  # noqa: N806 - 3 decimals for metrics
+    cfg = load_config()
+    fc = cfg["forecasting"]
+    e = res.evaluation
+    W = res.runs["W"]
+    panel = W.panel
+    from .forecasting import _split_indices, feature_names, ORACLE
+
+    def split_rows(run):
+        rows = []
+        for split in ["pre_break", "post_break"]:
+            warm, tr, va, te = _split_indices(run.panel, split)
+            P = run.panel.periods
+            rows.append({"split": split, "granularity": run.gran,
+                         "train": f"{P[tr[0]].start_time.date()} → {P[tr[-1]].end_time.date()} ({len(tr)})",
+                         "validation": f"{P[va[0]].start_time.date()} → {P[va[-1]].end_time.date()} ({len(va)})",
+                         "test": f"{P[te[0]].start_time.date()} → {P[te[-1]].end_time.date()} ({len(te)})"})
+        return rows
+    splits = pd.DataFrame(split_rows(W) + split_rows(res.runs["M"]))
+
+    def table(gran, eval_set, mode, handling="none", level="zone_period", metrics=("MAE", "RMSE", "WAPE", "bias_pct"),
+              extra_models=()):
+        x = e[(e.granularity == gran) & (e.eval_set == eval_set) & (e["mode"] == mode) & (e.handling == handling)
+              & (e.level == level) & (e.tier == "all") & e.network.isin(fc["networks"])]
+        x = x[["target", "network", "model"] + list(metrics)].copy()
+        if extra_models:
+            o = e[(e.granularity == gran) & (e.eval_set == eval_set) & (e.model.isin(extra_models)) & (e.level == level)
+                  & (e.tier == "all") & e.network.isin(fc["networks"])][["target", "network", "model"] + list(metrics)]
+            x = pd.concat([x, o])
+        for c in metrics:
+            x[c] = x[c].round(3)
+        return x.sort_values(["target", "network", "WAPE" if "WAPE" in metrics else metrics[0]])
+
+    def best_line(t):
+        lines = []
+        for (tgt, net), g in t.groupby(["target", "network"]):
+            g = g[g.model != ORACLE].sort_values("WAPE")
+            lines.append(f"{tgt}/{net}: best **{g.iloc[0].model}** (WAPE {g.iloc[0].WAPE:.3f}); "
+                         f"XGBoost {g[g.model == 'xgboost'].WAPE.iloc[0]:.3f}")
+        return "; ".join(lines)
+
+    pre_os = table("W", "pre_break_test", "one_step", extra_models=(ORACLE,))
+    pre_hz = table("W", "pre_break_test", "horizon")
+    post_os = table("W", "post_break_test", "one_step", extra_models=(ORACLE,))
+    post_hz = table("W", "post_break_test", "horizon")
+    mape = e[(e.granularity == "W") & (e.level == "network_period") & e.eval_set.isin(["pre_break_test", "post_break_test"])
+             & (e.handling == "none")]
+    mape_t = mape.pivot_table(index=["eval_set", "mode", "target", "network"], columns="model", values="MAPE").round(3).reset_index()
+
+    # pre vs post comparison, zone-period WAPE one-step
+    pv = e[(e.granularity == "W") & (e["mode"] == "one_step") & (e.level == "zone_period") & (e.tier == "all")
+           & e.network.isin(fc["networks"]) & e.eval_set.isin(["pre_break_test", "post_break_test"])]
+    pv = pv.pivot_table(index=["target", "network", "model"], columns="eval_set", values="WAPE").round(3).reset_index()
+    pv["change"] = (pv["post_break_test"] - pv["pre_break_test"]).round(3)
+
+    ad = e[(e.granularity == "W") & (e.eval_set == "post_break_adapted") & (e.level == "zone_period") & (e.tier == "all")
+           & e.network.isin(fc["networks"])]
+    ad_t = ad.pivot_table(index=["target", "network"], columns=["model", "handling"], values="WAPE").round(3)
+    ad_t.columns = [f"{m} [{h}]" for m, h in ad_t.columns]
+    ad_t = ad_t.reset_index()
+    adz = e[(e.granularity == "W") & (e.eval_set == "post_break_adapted") & (e.level == "zone_total") & (e.tier == "all")
+            & e.network.isin(fc["networks"])]
+    adz_t = adz.pivot_table(index=["target", "network"], columns=["model", "handling"], values="WAPE").round(3)
+    adz_t.columns = [f"{m} [{h}]" for m, h in adz_t.columns]
+    adz_t = adz_t.reset_index()
+    fac = res.factors[res.factors.granularity == "W"][["network", "target", "model", "actual", "predicted", "factor"]].round(3)
+
+    # spatial relocation diagnostics
+    brk = panel.first_index_from(cfg["preprocessing"]["regime_break_date"])
+    reloc = []
+    for net, g in panel.zones.groupby("network"):
+        idx = g.index.to_numpy()
+        pre = panel.Y["orders"][idx, :brk].sum(axis=1); post = panel.Y["orders"][idx, brk:].sum(axis=1)
+        sp, so = pre / pre.sum(), post / post.sum()
+        top_pre = g["zone_id"].values[np.argsort(-sp)[:2]]; top_post = g["zone_id"].values[np.argsort(-so)[:2]]
+        reloc.append({"network": net, "total_variation_distance": round(0.5 * np.abs(sp - so).sum(), 3),
+                      "top2_zones_pre": ", ".join(top_pre), "top2_share_pre": round(np.sort(sp)[-2:].sum(), 3),
+                      "same_zones_share_post": round(so[np.isin(g['zone_id'].values, top_pre)].sum(), 3),
+                      "top2_zones_post": ", ".join(top_post), "top2_share_post": round(np.sort(so)[-2:].sum(), 3)})
+    reloc = pd.DataFrame(reloc)
+    zc = panel.zones.set_index("zone_id")
+    pr_top = [z for z in reloc.loc[reloc.network == "Puerto Rico", "top2_zones_pre"].iat[0].split(", ")] + \
+             [z for z in reloc.loc[reloc.network == "Puerto Rico", "top2_zones_post"].iat[0].split(", ")]
+    pr_coords = zc.loc[pr_top, ["centroid_lat", "centroid_lon"]].round(3).reset_index()
+    move_km = float(haversine_km(zc.loc[pr_top[0], "centroid_lat"], zc.loc[pr_top[0], "centroid_lon"],
+                                 zc.loc[pr_top[2], "centroid_lat"], zc.loc[pr_top[2], "centroid_lon"]))
+    from scipy.stats import spearmanr
+    pr_idx = panel.zones.index[panel.zones.network == "Puerto Rico"].to_numpy()
+    pr_rho = spearmanr(panel.Y["orders"][pr_idx, :brk].sum(axis=1), panel.Y["orders"][pr_idx, brk:].sum(axis=1))[0]
+    pre_upo = panel.Y["units"][:, :brk].sum() / panel.Y["orders"][:, :brk].sum()
+    adapt_n = fc["granularity"]["W"]["adapt_periods"]
+    upo_adapt = panel.Y["units"][:, brk:brk + adapt_n].sum() / panel.Y["orders"][:, brk:brk + adapt_n].sum()
+    upo_rest = panel.Y["units"][:, brk + adapt_n:].sum() / panel.Y["orders"][:, brk + adapt_n:].sum()
+    n_rest = panel.T - brk - adapt_n
+    ub = res.selection[res.selection.target == "units"]
+    units_bias = ", ".join(f"{r.network} {100 * r.bias_pct:+.0f}%" for r in ub.itertuples())
+
+    tiers = e[(e.granularity == "W") & (e["mode"] == "one_step") & (e.level == "zone_period")
+              & e.network.isin(fc["networks"]) & e.tier.isin(["high", "medium", "low"])
+              & e.eval_set.isin(["pre_break_test", "post_break_test"]) & (e.target == "orders")]
+    tier_t = tiers.pivot_table(index=["eval_set", "network", "tier"], columns="model", values="WAPE").round(3)
+    tier_t = tier_t.reindex(columns=[c for c in ["historical_average", "moving_average", "random_forest", "xgboost", ORACLE]
+                                     if c in tier_t.columns]).reset_index()
+    tier_t["tier"] = pd.Categorical(tier_t["tier"], ["high", "medium", "low"])
+    tier_t = tier_t.sort_values(["eval_set", "network", "tier"])
+    tier_sizes = (pd.Series(W.predictions.drop_duplicates("zone_id").set_index("zone_id")["tier"])
+                  .to_frame().join(panel.zones.set_index("zone_id")["network"]).value_counts().rename("zones").reset_index())
+
+    gm = e[(e.level == "zone_total") & (e["mode"] == "horizon") & (e.handling == "none") & (e.tier == "all")
+           & e.network.isin(fc["networks"]) & e.eval_set.isin(["pre_break_test", "post_break_test"])
+           & e.model.isin(["historical_average", "moving_average", "random_forest", "xgboost"])]
+    gm_t = gm.pivot_table(index=["eval_set", "target", "network", "model"], columns="granularity", values="WAPE").round(3).reset_index()
+    gm_t["monthly_minus_weekly"] = (gm_t["M"] - gm_t["W"]).round(3)
+
+    tun = res.tuning[res.tuning.selected][["granularity", "split", "target", "model", "params", "valid_wape"]].copy()
+    tun["valid_wape"] = tun["valid_wape"].round(4)
+
+    imp = res.importance
+    gain = imp[(imp.granularity == "W") & (imp.model == "xgboost") & (imp.importance_type == "gain")]
+    perm = imp[(imp.granularity == "W") & (imp.model == "xgboost") & (imp.importance_type == "permutation_mae_increase")]
+    top_gain = {t: gain[gain.target == t].nlargest(6, "importance")[["feature", "importance"]].round(3) for t in TARGETS_R}
+    top_perm = {t: perm[perm.target == t].nlargest(6, "importance")[["feature", "importance"]].round(4) for t in TARGETS_R}
+    cal_rank = {t: int(perm[perm.target == t].sort_values("importance", ascending=False)["feature"].tolist().index("period_of_year")) + 1
+                for t in TARGETS_R}
+
+    sel = res.selection.copy()
+    for c in ["WAPE", "MAE", "RMSE", "bias_pct"]:
+        sel[c] = sel[c].round(3)
+    xgb_wins = sel[sel.model == "xgboost"]
+    zt = adz[adz.model != ORACLE].copy()
+    near = []
+    for r in sel.itertuples():
+        g = zt[(zt.target == r.target) & (zt.network == r.network) & (zt.WAPE <= r.WAPE + 0.01)
+               & ~((zt.model == r.model) & (zt.handling == r.handling))]
+        near.append(g[["target", "network", "model", "handling", "WAPE", "bias_pct"]])
+    near = pd.concat(near).round(3) if near else pd.DataFrame()
+    zw = ad[ad.model != ORACLE]
+    zw_best = zw.loc[zw.groupby(["target", "network"])["WAPE"].idxmin(),
+                     ["target", "network", "model", "handling", "WAPE", "bias_pct"]].round(3)
+    fcb = zw_best[(zw_best.target == "orders") & (zw_best.network == "CONUS")]
+    fcb_row = adz[(adz.target == "orders") & (adz.network == "CONUS") & (adz.model == fcb.model.iat[0])
+                  & (adz.handling == fcb.handling.iat[0])]
+    first_choice_bias = float(fcb_row.bias_pct.iat[0]) if len(fcb_row) else float("nan")
+    oracle_ad = ad[ad.model == ORACLE][["target", "network", "WAPE"]].round(3)
+
+    c = res.cflp
+    cs = c.groupby("network").agg(zones=("zone_id", "size"),
+                                  forecast_orders_per_week=("forecast_per_period_orders", "sum"),
+                                  forecast_units_per_week=("forecast_per_period_units", "sum"),
+                                  hist_all_orders_per_week=("historical_avg_per_period_all_orders", "sum"),
+                                  hist_all_units_per_week=("historical_avg_per_period_all_units", "sum"),
+                                  post_break_orders_per_week=("historical_avg_per_period_post_break_orders", "sum"),
+                                  post_break_units_per_week=("historical_avg_per_period_post_break_units", "sum")).round(1).reset_index()
+    top_c = c[c.network == "CONUS"].nlargest(8, "forecast_per_period_orders")[
+        ["zone_id", "dominant_city", "dominant_state", "forecast_per_period_orders", "forecast_per_period_units",
+         "historical_avg_per_period_all_orders"]].round(2)
+    top_pr = c[c.network == "Puerto Rico"].nlargest(4, "forecast_per_period_orders")[
+        ["zone_id", "centroid_lat", "centroid_lon", "forecast_per_period_orders", "forecast_per_period_units",
+         "historical_avg_per_period_all_orders"]].round(3)
+    models_used = c.groupby("network")[["model_orders", "model_units"]].first().reset_index()
+
+    L = [
+        "# Phase 3: Demand Forecasting",
+        "",
+        "_Generated by `python main.py forecast` (`src/forecasting.py`). Every number is computed from the data. "
+        "No forecasting output is typed in by hand._",
+        "",
+        "## 1. Set-up",
+        "",
+        f"* **Series:** one per demand zone. CONUS has {int((panel.zones.network == 'CONUS').sum())} zones and Puerto Rico "
+        f"{int((panel.zones.network == 'Puerto Rico').sum())}. Hawaii is analysis-only and is not forecast. "
+        "Targets are **orders** (deliveries) and **units** (`Order Item Quantity`), forecast by separate models.",
+        f"* **Weekly (primary):** complete Sunday–Saturday weeks, "
+        f"{panel.periods[0].start_time.date()} → {panel.periods[-1].end_time.date()} ({panel.T} weeks). The week of "
+        "2017-10-01 starts exactly at the distribution break. **Monthly (alternative):** "
+        f"{res.runs['M'].panel.T} complete months.",
+        "* **Chronological splits.** Hyper-parameters are chosen on validation. Models are then refit on train + "
+        "validation and scored once on test:",
+        "",
+        _md_table(splits),
+        "",
+        "* **Evaluation modes:**",
+        "  * `one_step` predicts period *t* from actuals up to *t−1* (walk-forward).",
+        "  * `horizon` forecasts the whole test window from its origin, recursively, without seeing any test "
+        "actuals. **This is the mode that produces CFLP inputs.**",
+        f"  * `post_break_adapted` lets the models observe the first {fc['granularity']['W']['adapt_periods']} "
+        "post-break weeks, then forecasts the remaining 13 weeks with three regime handlings: `none`, "
+        "`recalibrated` (network-level factor = actual ÷ predicted over the observed weeks) and `regime_reset` "
+        "(baselines that use only post-break or share information).",
+        "* **Approaches** (identical inputs and splits):",
+        f"  1. **Historical average**: zone's expanding mean of all past periods.",
+        f"  2. **Moving average**: mean of the last *k* periods, with *k* ∈ {fc['granularity']['W']['ma_candidates']} "
+        "chosen on validation.",
+        f"  3. **Random Forest**: {fc['random_forest_trees']} trees, a {len(fc['random_forest_grid'])}-setting grid.",
+        "  4. **XGBoost**: an 8-setting grid (objective × depth × min_child_weight), with early stopping.",
+        "  Both ML models are **global**: one model per target, pooled over all zones of both networks, with an "
+        "`is_pr` flag.",
+        f"* **Features ({len(feature_names('W'))}, weekly):** {', '.join('`' + f + '`' for f in feature_names('W'))}.",
+        "* **Leakage controls:**",
+        "  * Every feature for period *t* is computed from columns < *t* through prefix sums, in one function "
+        "shared by training, one-step and recursive forecasting.",
+        "  * `tests/test_phase3.py` perturbs values at and after *t* and asserts that no feature at ≤ *t* changes.",
+        "  * It also checks that recursive features equal batch features, and that horizon forecasts are unaffected "
+        "by test actuals.",
+        "  * Zone tiers are fixed from pre-break training data.",
+        "  * Calendar features are known in advance.",
+        "  * No feature encodes the break date. A real-time forecaster could not have known it.",
+        "* **Metrics:**",
+        "  * MAE, RMSE, WAPE = Σ|e|/Σy, and bias = Σe/Σy.",
+        "  * **MAPE is reported only for network-level weekly totals**, where every actual is > 0. At zone level "
+        "most periods are zero, which makes MAPE undefined.",
+        "  * An **oracle reference** predicts each zone's *actual* mean over the window. It is not a forecast. It "
+        "marks the irreducible noise floor of zone-week counts.",
+        "",
+        "Selected hyper-parameters (validation WAPE):",
+        "",
+        _md_table(tun),
+        "",
+        "## 2. Results in the stable regime (pre-break test, Jun–Sep 2017)",
+        "",
+        "Zone-week metrics, one-step-ahead:",
+        "",
+        _md_table(pre_os),
+        "",
+        f"* {best_line(pre_os[pre_os.model != ORACLE])}.",
+        "* All four approaches sit close to the **oracle noise floor**. A zone receives on average under one order "
+        "per week, so most zone-week error is count noise that no model can remove.",
+        "",
+        "17-week horizon (recursive, no test actuals):",
+        "",
+        _md_table(pre_hz),
+        "",
+        "Zone totals over the 17-week window (horizon mode, the CFLP-relevant view):",
+        "",
+        _md_table(table("W", "pre_break_test", "horizon", level="zone_total")),
+        "",
+        "Network-level weekly totals, MAPE (defined because every actual is > 0):",
+        "",
+        _md_table(mape_t),
+        "",
+        "## 3. After the October 2017 break",
+        "",
+        "### 3.1 Models that have never seen post-break data (post-break test, Oct 2017–Jan 2018)",
+        "",
+        "One-step (lags update with actual post-break weeks):",
+        "",
+        _md_table(post_os),
+        "",
+        "Horizon from 2017-09-30 (pure extrapolation of the old regime):",
+        "",
+        _md_table(post_hz),
+        "",
+        "Zone-week WAPE before vs after the break (one-step):",
+        "",
+        _md_table(pv),
+        "",
+        f"* **Units fail completely** without regime information. Forecasts keep the pre-break level of about {pre_upo:.2f} "
+        "units/order, so WAPE reaches several hundred percent. Orders degrade far less.",
+        "* In one-step mode the models that weight recent lags most (moving average, the ML models) recover part "
+        "of the level. The expanding historical average cannot.",
+        "",
+        "### 3.2 Puerto Rico's demand relocates at the break",
+        "",
+        _md_table(reloc),
+        "",
+        _md_table(pr_coords),
+        "",
+        "* In CONUS the zone order shares change only modestly (total variation distance shown above).",
+        "* In **Puerto Rico almost all demand moves** from the two dominant pre-break zones to two other zones about "
+        f"{move_km:.0f} km east. Those zones sit at the location of the real city of Caguas, while the pre-break \"Caguas\" "
+        "points were placed west of it.",
+        "* This is a data-generation artefact of the catch-all label (Phase 2 §2). It **corrects the Phase 2 "
+        "statement** that spatial shares are stable: that holds for CONUS but **not for Puerto Rico** "
+        f"(Phase 2's rank correlation over all 25 zones, {pr_rho:.2f} here, hid it).",
+        "* A network-level recalibration cannot fix a spatial move. Only methods that re-learn zone levels from "
+        "post-break data can.",
+        "",
+        f"### 3.3 Adapting to the new regime ({adapt_n} post-break weeks observed, {n_rest} weeks forecast)",
+        "",
+        "Zone-week WAPE:",
+        "",
+        _md_table(ad_t),
+        "",
+        "Zone-total WAPE over the 13 weeks (the quantity a CFLP consumes):",
+        "",
+        _md_table(adz_t),
+        "",
+        "Recalibration factors (actual ÷ one-step predicted, first 4 post-break weeks):",
+        "",
+        _md_table(fac),
+        "",
+        f"* **Why the selected units forecasts are biased high ({units_bias}).** Units per order in the first "
+        f"{adapt_n} post-break weeks were {upo_adapt:.3f}, against {upo_rest:.3f} in the following {n_rest} weeks. "
+        "The first weeks of October still contained some multi-item orders. Every method that calibrates on those "
+        "weeks inherits the excess. The forward CFLP forecast calibrates on the *last* 4 observed weeks "
+        "(January 2018), which are fully in the new regime.",
+        "",
+        "Oracle noise floor on this window (zone-week WAPE):",
+        "",
+        _md_table(oracle_ad),
+        "",
+        "## 4. Performance by zone-demand tier",
+        "",
+        "Tiers are fixed per network from pre-break training orders: the top 10% of zones are *high*, the next 40% "
+        "*medium* and the bottom 50% *low*.",
+        "",
+        _md_table(tier_sizes),
+        "",
+        "Orders, zone-week WAPE, one-step:",
+        "",
+        _md_table(tier_t),
+        "",
+        "Relative error rises steeply as zone volume falls. Low-demand zones see zero orders in most weeks, so "
+        "their WAPE is dominated by noise for every method. Absolute errors (MAE) are small there. High-demand "
+        "zones drive both the network totals and the CFLP cost.",
+        "",
+        "## 5. Weekly vs monthly aggregation",
+        "",
+        "Both granularities are compared on the same quantity: zone totals over the test window, horizon mode.",
+        "",
+        _md_table(gm_t),
+        "",
+        "Monthly models aggregate away noise inside each period, but they have about 4x fewer training periods "
+        "and only 4 test months. A negative `monthly_minus_weekly` means monthly was better.",
+        "",
+        "## 6. Model selection",
+        "",
+        "**Rule:** per (target, network), pick the (model, regime handling) with the lowest **WAPE of zone totals "
+        "over the 13-week post-break adapted test window**. That is the quantity the CFLP consumes, in the regime "
+        "it must plan for.",
+        "",
+        "**How the rule was arrived at.** The first implementation selected on *zone-week* WAPE. Its result "
+        f"(CONUS orders → historical average without regime handling, bias "
+        f"{_fmt(first_choice_bias, 3)}) exposed a flaw. Zone-week MAE/WAPE is minimised by the conditional "
+        "*median*, and for sparse counts (most zone-weeks are 0 or 1) the median is near zero. That criterion "
+        "therefore rewards systematic under-forecasting. The CFLP needs unbiased zone *rates*, so the criterion "
+        "was changed to zone-total WAPE. Both views are shown below for transparency. The brief asks for "
+        "selection on test results. With about 15 candidates the optimism from selecting on test is small, but "
+        "it is not zero.",
+        "",
+        _md_table(sel),
+        "",
+        "Candidates within 0.01 zone-total WAPE of the winner (statistical near-ties):",
+        "",
+        _md_table(near) if len(near) else "_none_",
+        "",
+        "For comparison, the winner on zone-week WAPE:",
+        "",
+        _md_table(zw_best),
+        "",
+        ("XGBoost is selected for: " + ", ".join(f"{r.target}/{r.network}" for r in xgb_wins.itertuples()) + "."
+         if len(xgb_wins) else "**XGBoost is not selected for any target or network.** Simpler methods match or "
+         "beat it on this data, as the noise-floor analysis predicts. The demand is close to stationary noise "
+         "around a zone level, so there is little nonlinear structure for boosting to exploit. In addition, the "
+         "decisive problem after the break is a *level and location shift*, which no model trained on pre-break "
+         "data can learn. It can only be handled by recalibration or a regime reset."),
+        "",
+        XGB_MATH,
+        "",
+        "### Feature importance (weekly XGBoost, `feature_importance.csv`)",
+        "",
+        "Top features by gain:",
+        "",
+        *[f"*{t}:*\n\n" + _md_table(top_gain[t]) + "\n" for t in TARGETS_R],
+        "Top features by permutation importance (rise in pre-break-test MAE):",
+        "",
+        *[f"*{t}:*\n\n" + _md_table(top_perm[t]) + "\n" for t in TARGETS_R],
+        f"The calendar feature `period_of_year` ranks {cal_rank['orders']} (orders) and {cal_rank['units']} (units) "
+        "by permutation importance. This confirms Phase 2: there is no usable seasonality. The forecasts are driven "
+        "by the zone's own recent level and its share of network demand.",
+        "",
+        "## 7. From forecasts to CFLP demand inputs",
+        "",
+        "`data/outputs/cflp_zone_demand_forecast.csv` is the hand-off file. It is produced as follows:",
+        "",
+        "1. Every model is **refit on all complete weeks**, through "
+        f"{panel.periods[-1].end_time.date()}.",
+        f"2. Using the selected (model, handling) per network and target, each zone is forecast for the next "
+        f"**{fc['cflp_horizon_periods']} weeks** ({c['forecast_start'].iat[0]} → {c['forecast_end'].iat[0]}). "
+        "Where the handling is `recalibrated`, the factor is estimated on the last 4 observed weeks.",
+        "3. The file gives each zone's **mean weekly forecast** and **13-week total** for orders and units, its "
+        "coordinates, and two historical scenarios: the all-history average and the post-break-only average.",
+        "",
+        _md_table(models_used),
+        "",
+        f"**Coherence step.** A zone's unit forecast may not fall below its order forecast. Units were raised in "
+        f"{int((c['units_coherence_adjustment'] > 0).sum())} zones, adding "
+        f"{c['units_coherence_adjustment'].sum():.1f} units/week "
+        f"({100 * c['units_coherence_adjustment'].sum() / c['forecast_per_period_units'].sum():.1f}% of the units total). "
+        "The adjustment is stored per zone in `units_coherence_adjustment`.",
+        "",
+        "Network totals (per week, after the coherence step):",
+        "",
+        _md_table(cs),
+        "",
+        "Largest CONUS zones in the forecast:",
+        "",
+        _md_table(top_c),
+        "",
+        "Largest Puerto Rico zones in the forecast:",
+        "",
+        _md_table(top_pr),
+        "",
+        "**How the CFLP (Phase 4) will use it.** For demand zone *i* (located at its centroid):",
+        "",
+        "* $d_i$ = forecast **orders per week**, scaled to the planning period. Orders are deliveries, so "
+        "transport cost follows deliveries: $C_{ij} = c_{km}\\cdot \\mathrm{dist}_{ij}\\cdot d_i$.",
+        "* $u_i$ = forecast **units per week**. Warehouse throughput is measured in units: "
+        "$\\sum_i u_i X_{ij} \\le Q_j Y_j$ (capacity $Q_j$ is a documented assumption).",
+        "* Every zone must be assigned: $\\sum_j X_{ij}=1$. CONUS and Puerto Rico are solved as **separate CFLPs**. "
+        "Puerto Rico must use post-break demand locations. The pre-break geography no longer exists in the data.",
+        "* **Experiment C** compares warehouse plans built from `historical_avg_per_period_all_*` "
+        "(Scenario 1) with plans built from `forecast_per_period_*` (Scenario 2). Both are evaluated against the "
+        "same realised demand.",
+        "",
+        "## 8. Limitations",
+        "",
+        "* Only 17 post-break weeks exist. Adapted results rest on 13 test weeks, and the forward forecast "
+        "extrapolates a regime observed for 4 months.",
+        "* Zone-week demand is mostly zeros and ones. Point accuracy is bounded by count noise (see the oracle). "
+        "The CFLP needs zone *rates*, which aggregate well.",
+        "* The global ML models are trained almost entirely on pre-break data. They can only adapt through lag "
+        "features or recalibration, not by learning the new regime.",
+        "* Recursive multi-step forecasts can drift. The 13-week horizon results above measure that effect.",
+        "",
+        "## 9. Outputs",
+        "",
+        "| File | Content |", "|---|---|",
+        "| `data/outputs/demand_predictions.csv` | Selected model per target/network: actual vs predicted on every evaluation set, plus the forward CFLP forecast |",
+        "| `data/outputs/order_demand_predictions.csv` | All models: orders, actual vs predicted, zone-period (git-ignored, regenerate) |",
+        "| `data/outputs/unit_demand_predictions.csv` | All models: units (git-ignored, regenerate) |",
+        "| `data/outputs/forecast_evaluation.csv` | All metrics by granularity, set, mode, handling, target, network, tier, level |",
+        "| `data/outputs/model_comparison.csv` | Compact comparison with ranks |",
+        "| `data/outputs/feature_importance.csv` | XGBoost gain/weight/cover, RF impurity, permutation for both |",
+        "| `data/outputs/selected_forecast_model.csv` | Selection result |",
+        "| `data/outputs/cflp_zone_demand_forecast.csv` | **CFLP demand input** |",
+        "| `data/outputs/forecast_hyperparameter_tuning.csv`, `forecast_recalibration_factors.csv`, `forecast_runtimes.csv` | Tuning, factors, runtimes |",
+        "| `models/demand_forecasting_model.pkl` | Final refit models + selection (git-ignored) |",
+        "| `models/forecast_models_*.pkl` | Per-split fitted models (git-ignored) |",
+        "| `reports/figures/phase3_*.png` | Figures |",
+        "",
+    ]
+    return "\n".join(L)
+
+
+TARGETS_R = ("orders", "units")
+
+
+def write_phase3_report(res) -> None:
+    (get_path("reports_dir") / "phase3_forecasting_report.md").write_text(build_phase3_report(res), encoding="utf-8")

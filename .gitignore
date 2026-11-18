@@ -22,3 +22,7 @@ __pycache__/
 venv/
 .env
 .DS_Store
+
+# Large regenerable Phase 3 prediction exports (all models x all zones x all periods)
+data/outputs/order_demand_predictions.csv
+data/outputs/unit_demand_predictions.csv

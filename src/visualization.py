@@ -255,3 +255,231 @@ def make_phase2_figures(zones, zone_daily, tables: dict) -> list[Path]:
               fig_concentration(tables["concentration"]), fig_spatial_stability(zone_daily),
               fig_sparsity(tables["sparsity"]), folium_zone_map(zones)]
     return paths
+
+
+# =========================================================================== #
+# Phase 3: forecasting figures
+# =========================================================================== #
+MODEL_COLORS = {"historical_average": "#2a78d6", "moving_average": "#eb6834", "random_forest": "#1baf7a",
+                "xgboost": "#eda100", "share_x_recent_level": "#e87ba4", "post_break_average": "#6250d6",
+                "oracle_window_mean": "#52514e"}
+MODEL_LABELS = {"historical_average": "Historical avg", "moving_average": "Moving avg",
+                "random_forest": "Random Forest", "xgboost": "XGBoost", "share_x_recent_level": "Share × recent level",
+                "post_break_average": "Post-break average", "oracle_window_mean": "Oracle (noise floor)"}
+FC_NETS = ["CONUS", "Puerto Rico"]
+
+
+def fig_fc_network_series(pred: pd.DataFrame, gran: str = "W") -> Path:
+    """Network-total actual vs one-step forecasts across validation, pre-break test and post-break test."""
+    p = pred[(pred["granularity"] == gran) & (pred["mode"] == "one_step")
+             & pred["eval_set"].isin(["pre_break_validation", "pre_break_test", "post_break_test"])]
+    fig, axes = plt.subplots(2, 2, figsize=(13, 7), sharex=True)
+    for i, tgt in enumerate(["orders", "units"]):
+        for j, net in enumerate(FC_NETS):
+            ax = axes[i, j]
+            g = p[(p["target"] == tgt) & (p["network"] == net)]
+            s = g.groupby(["model", "period_start"])[["actual", "predicted"]].sum().reset_index()
+            act = s[s["model"] == "historical_average"].set_index("period_start")["actual"]
+            ax.plot(act.index, act.values, color=INK, lw=2.2, label="Actual")
+            for m in ALL_FC_MODELS:
+                mm = s[s["model"] == m]
+                ax.plot(mm["period_start"], mm["predicted"], color=MODEL_COLORS[m], lw=1.4, label=MODEL_LABELS[m])
+            for d, lab in [("2017-06-01", "pre-break test"), ("2017-10-01", "post-break test")]:
+                ax.axvline(pd.Timestamp(d), color=MUTED, ls="--", lw=1)
+                ax.text(pd.Timestamp(d), ax.get_ylim()[1] * 0.97, f" {lab}", color=MUTED, fontsize=7, va="top")
+            ax.set_title(f"{net}: weekly {tgt} (network total), one-step-ahead")
+            ax.set_ylabel(f"{tgt} / week")
+    axes[0, 0].legend(ncol=5, fontsize=7, loc="lower left")
+    for ax in axes[1]:
+        ax.tick_params(axis="x", rotation=30)
+    fig.suptitle("Actual vs predicted demand (sum over zones). Models trained only on data before each window",
+                 fontweight="bold")
+    return _save(fig, "phase3_actual_vs_predicted_network.png")
+
+
+ALL_FC_MODELS = ["historical_average", "moving_average", "random_forest", "xgboost"]
+
+
+def fig_fc_wape(evaluation: pd.DataFrame, gran: str = "W") -> Path:
+    e = evaluation[(evaluation["granularity"] == gran) & (evaluation["tier"] == "all")
+                   & (evaluation["level"] == "zone_period") & evaluation["network"].isin(FC_NETS)]
+    combos = [("pre_break_test", "one_step", "none", "Pre-break\none-step"),
+              ("pre_break_test", "horizon", "none", "Pre-break\n17-wk horizon"),
+              ("post_break_test", "one_step", "none", "Post-break\none-step"),
+              ("post_break_test", "horizon", "none", "Post-break\n17-wk horizon"),
+              ("post_break_adapted", "horizon", "none", "Post adapted\nraw"),
+              ("post_break_adapted", "horizon", "recalibrated", "Post adapted\nrecalibrated")]
+    fig, axes = plt.subplots(2, 2, figsize=(14, 7.5), sharey="row")
+    w = 0.2
+    for i, tgt in enumerate(["orders", "units"]):
+        for j, net in enumerate(FC_NETS):
+            ax = axes[i, j]
+            for k, m in enumerate(ALL_FC_MODELS):
+                vals = []
+                for es, mode, hd, _ in combos:
+                    v = e[(e["eval_set"] == es) & (e["mode"] == mode) & (e["handling"] == hd) & (e["target"] == tgt)
+                          & (e["network"] == net) & (e["model"] == m)]["WAPE"]
+                    vals.append(float(v.iloc[0]) if len(v) else np.nan)
+                ax.bar(np.arange(len(combos)) + (k - 1.5) * w, 100 * np.array(vals), width=w - 0.02,
+                       color=MODEL_COLORS[m], label=MODEL_LABELS[m])
+            ax.set_xticks(range(len(combos)), [c[3] for c in combos], fontsize=7)
+            ax.set_title(f"{net}: {tgt}, zone-{'week' if gran == 'W' else 'month'} WAPE (%)")
+            ax.set_ylabel("WAPE %")
+    axes[0, 0].legend(ncol=4, fontsize=8)
+    fig.suptitle("Forecast error by model, evaluation window and regime handling (lower is better)",
+                 fontweight="bold")
+    return _save(fig, f"phase3_model_wape_comparison_{gran}.png")
+
+
+def fig_fc_tiers(evaluation: pd.DataFrame, eval_set: str = "pre_break_test", gran: str = "W") -> Path:
+    e = evaluation[(evaluation["granularity"] == gran) & (evaluation["eval_set"] == eval_set)
+                   & (evaluation["mode"] == "one_step") & (evaluation["level"] == "zone_period")
+                   & evaluation["network"].isin(FC_NETS) & evaluation["tier"].isin(["high", "medium", "low"])]
+    fig, axes = plt.subplots(2, 2, figsize=(12, 6.5), sharey="row")
+    tiers = ["high", "medium", "low"]
+    w = 0.2
+    for i, tgt in enumerate(["orders", "units"]):
+        for j, net in enumerate(FC_NETS):
+            ax = axes[i, j]
+            for k, m in enumerate(ALL_FC_MODELS):
+                g = e[(e["target"] == tgt) & (e["network"] == net) & (e["model"] == m)].set_index("tier").reindex(tiers)
+                ax.bar(np.arange(3) + (k - 1.5) * w, 100 * g["WAPE"], width=w - 0.02, color=MODEL_COLORS[m],
+                       label=MODEL_LABELS[m])
+            ax.set_xticks(range(3), ["High (top 10%)", "Medium (next 40%)", "Low (bottom 50%)"])
+            ax.set_title(f"{net}: {tgt}, WAPE % by zone-demand tier")
+    axes[0, 0].legend(ncol=4, fontsize=8)
+    fig.suptitle(f"Error grows sharply for low-demand zones ({eval_set.replace('_', ' ')}, one-step)",
+                 fontweight="bold")
+    return _save(fig, f"phase3_tier_wape_{eval_set}.png")
+
+
+def fig_fc_post_break(pred: pd.DataFrame, selection: pd.DataFrame, gran: str = "W") -> Path:
+    """Network units/orders after the break: naive horizon vs adapted forecasts vs actual."""
+    fig, axes = plt.subplots(2, 2, figsize=(13, 6.5))
+    for i, tgt in enumerate(["orders", "units"]):
+        for j, net in enumerate(FC_NETS):
+            mdl = "xgboost"  # the ML reference shown in every panel; regime-reset lines are added below
+            ax = axes[i, j]
+            base = pred[(pred["granularity"] == gran) & (pred["target"] == tgt) & (pred["network"] == net)]
+            pre_hist = base[(base["eval_set"] == "pre_break_test") & (base["mode"] == "one_step")
+                            & (base["model"] == "historical_average")].groupby("period_start")["actual"].sum()
+            post = base[base["eval_set"] == "post_break_test"]
+            act = post[(post["mode"] == "one_step") & (post["model"] == "historical_average")].groupby("period_start")["actual"].sum()
+            a = pd.concat([pre_hist, act])
+            ax.plot(a.index, a.values, color=INK, lw=2.2, label="Actual")
+            naive = post[(post["mode"] == "horizon") & (post["model"] == mdl)].groupby("period_start")["predicted"].sum()
+            ax.plot(naive.index, naive.values, color=MODEL_COLORS[mdl], lw=1.5, ls=":",
+                    label=f"{MODEL_LABELS[mdl]}: horizon from 2017-09-30 (no post-break data)")
+            ad = base[base["eval_set"] == "post_break_adapted"]
+            for hd, ls in [("none", "--"), ("recalibrated", "-")]:
+                s = ad[(ad["model"] == mdl) & (ad["handling"] == hd)].groupby("period_start")["predicted"].sum()
+                ax.plot(s.index, s.values, color=MODEL_COLORS[mdl], lw=1.8, ls=ls,
+                        label=f"{MODEL_LABELS[mdl]}: after 4 post-break weeks, {'raw' if hd == 'none' else 'recalibrated'}")
+            for rm, ls in [("share_x_recent_level", "-"), ("post_break_average", (0, (4, 3)))]:
+                s = ad[ad["model"] == rm].groupby("period_start")["predicted"].sum()
+                ax.plot(s.index, s.values, color=MODEL_COLORS[rm], lw=1.8, ls=ls,
+                        label=MODEL_LABELS[rm] + (" (same network total; differs only by zone)"
+                                                  if rm == "post_break_average" else ""))
+            sel = selection[(selection["target"] == tgt) & (selection["network"] == net)].iloc[0]
+            ax.text(0.99, 0.02, f"selected: {MODEL_LABELS.get(sel['model'], sel['model'])} ({sel['handling']})",
+                    transform=ax.transAxes, ha="right", fontsize=7, color=MUTED)
+            ax.axvline(pd.Timestamp("2017-10-01"), color=MUTED, ls="--", lw=1)
+            ax.set_title(f"{net}: weekly {tgt}, network total")
+            ax.tick_params(axis="x", rotation=30)
+    axes[0, 0].legend(fontsize=6.5, loc="upper left")
+    fig.suptitle("The October 2017 break: forecasts that never saw post-break data vs adapted forecasts",
+                 fontweight="bold")
+    return _save(fig, "phase3_post_break_adaptation.png")
+
+
+def fig_fc_importance(imp: pd.DataFrame, top: int = 12) -> Path:
+    fig, axes = plt.subplots(2, 2, figsize=(13, 8))
+    for i, tgt in enumerate(["orders", "units"]):
+        for j, (model, kind, title) in enumerate([("xgboost", "gain", "XGBoost gain share"),
+                                                  ("xgboost", "permutation_mae_increase",
+                                                   "XGBoost permutation (MAE increase, pre-break test)")]):
+            ax = axes[i, j]
+            g = imp[(imp["target"] == tgt) & (imp["model"] == model) & (imp["importance_type"] == kind)
+                    & (imp["granularity"] == "W")].nlargest(top, "importance")[::-1]
+            ax.barh(g["feature"], g["importance"], color="#2a78d6", height=0.7)
+            ax.set_title(f"{tgt}: {title}", fontsize=10)
+    fig.suptitle("What drives the XGBoost forecasts: recent zone demand dominates; calendar adds little",
+                 fontweight="bold")
+    return _save(fig, "phase3_feature_importance.png")
+
+
+def fig_fc_zone_scatter(pred: pd.DataFrame, selection: pd.DataFrame, gran: str = "W") -> Path:
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.2))
+    for ax, tgt in zip(axes, ["orders", "units"]):
+        parts, labels = [], []
+        for net in FC_NETS:
+            sel = selection[(selection["target"] == tgt) & (selection["network"] == net)].iloc[0]
+            p = pred[(pred["granularity"] == gran) & (pred["eval_set"] == "post_break_adapted")
+                     & (pred["model"] == sel["model"]) & (pred["handling"] == sel["handling"])
+                     & (pred["target"] == tgt) & (pred["network"] == net)]
+            g = p.groupby("zone_id")[["actual", "predicted"]].sum().reset_index().assign(network=net)
+            parts.append(g)
+            ax.scatter(g["actual"] + 0.5, g["predicted"] + 0.5, s=14, alpha=0.6, color=NET_COLORS[net],
+                       label=f"{net}: {MODEL_LABELS.get(sel['model'], sel['model'])} ({sel['handling']})")
+        zt = pd.concat(parts)
+        lim = [0.4, zt[["actual", "predicted"]].values.max() * 1.6]
+        ax.plot(lim, lim, color=MUTED, ls=":", lw=1)
+        ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlim(lim); ax.set_ylim(lim)
+        ax.set_xlabel("actual zone total over test window (+0.5)"); ax.set_ylabel("forecast zone total (+0.5)")
+        ax.set_title(f"{tgt}: selected model per network, 13-week zone totals", fontsize=10)
+        ax.legend(fontsize=7)
+    fig.suptitle("Zone-level horizon totals: the quantity the CFLP consumes", fontweight="bold")
+    return _save(fig, "phase3_zone_total_scatter.png")
+
+
+def fig_fc_granularity(evaluation: pd.DataFrame) -> Path:
+    e = evaluation[(evaluation["tier"] == "all") & (evaluation["level"] == "zone_total")
+                   & evaluation["network"].isin(FC_NETS) & (evaluation["mode"] == "horizon")
+                   & (evaluation["handling"] == "none") & evaluation["eval_set"].isin(["pre_break_test", "post_break_test"])
+                   & evaluation["model"].isin(ALL_FC_MODELS)]
+    fig, axes = plt.subplots(1, 4, figsize=(15, 4), sharey=True)
+    combos = [(t, es) for t in ["orders", "units"] for es in ["pre_break_test", "post_break_test"]]
+    w = 0.2
+    for ax, (tgt, es) in zip(axes, combos):
+        for k, m in enumerate(ALL_FC_MODELS):
+            vals = []
+            for gran in ["W", "M"]:
+                v = e[(e["target"] == tgt) & (e["eval_set"] == es) & (e["model"] == m) & (e["granularity"] == gran)
+                      & (e["network"] == "CONUS")]["WAPE"]
+                vals.append(float(v.iloc[0]) if len(v) else np.nan)
+            ax.bar(np.arange(2) + (k - 1.5) * w, 100 * np.array(vals), width=w - 0.02, color=MODEL_COLORS[m],
+                   label=MODEL_LABELS[m])
+        ax.set_xticks([0, 1], ["Weekly model", "Monthly model"])
+        ax.set_title(f"CONUS {tgt}\n{es.replace('_', ' ')}", fontsize=10)
+    axes[0].set_ylabel("zone-total WAPE % over the 4-month window")
+    axes[0].legend(fontsize=7)
+    fig.suptitle("Weekly vs monthly aggregation, compared on the same quantity (zone totals over the test window)",
+                 fontweight="bold")
+    return _save(fig, "phase3_weekly_vs_monthly.png")
+
+
+def fig_fc_cflp_map(cflp: pd.DataFrame) -> Path:
+    z = cflp.rename(columns={"forecast_per_period_orders": "units"})  # reuse bubble helper on orders
+    z = z.assign(zone_id=cflp["zone_id"])
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5), gridspec_kw={"width_ratios": [2.2, 1]})
+    for ax, net, top in [(axes[0], "CONUS", 10), (axes[1], "Puerto Rico", 4)]:
+        g = z[z["network"] == net]
+        ax.scatter(g["centroid_lon"], g["centroid_lat"], s=_bubble(g["units"], 900 if net == "CONUS" else 1200),
+                   color=NET_COLORS[net], alpha=0.55, edgecolor="#fcfcfb", linewidth=0.8)
+        for r in g.nlargest(top, "units").itertuples():
+            name = r.dominant_city if net == "CONUS" else r.zone_id
+            ax.annotate(f"{name}\n{r.units:.1f}/wk", (r.centroid_lon, r.centroid_lat), fontsize=7,
+                        xytext=(5, 5), textcoords="offset points")
+        _geo_aspect(ax, g["centroid_lat"].mean())
+        ax.set_title(f"{net}: forecast orders/week per zone (bubble area)", fontsize=10)
+    f0, f1 = cflp["forecast_start"].iat[0], cflp["forecast_end"].iat[0]
+    fig.suptitle(f"CFLP demand input: forecast orders/week by zone, {f0} to {f1} (model per network in report)",
+                 fontweight="bold")
+    return _save(fig, "phase3_cflp_demand_forecast_map.png")
+
+
+def make_phase3_figures(pred_w, pred_all, evaluation, imp, selection, cflp) -> list[Path]:
+    return [fig_fc_network_series(pred_w), fig_fc_wape(evaluation, "W"), fig_fc_wape(evaluation, "M"),
+            fig_fc_tiers(evaluation, "pre_break_test"), fig_fc_tiers(evaluation, "post_break_test"),
+            fig_fc_post_break(pred_w, selection), fig_fc_importance(imp), fig_fc_zone_scatter(pred_w, selection),
+            fig_fc_granularity(evaluation), fig_fc_cflp_map(cflp)]

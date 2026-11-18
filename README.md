@@ -11,8 +11,8 @@ Search (OR-Tools) → experiments → Streamlit dashboard.
 |---|---|---|
 | 1 | Dataset inspection: structure, quality, limitations | ✅ done (`reports/phase1_dataset_inspection.md`) |
 | 2 | Preprocessing, demand zones, EDA | ✅ done (`reports/phase2_preprocessing_eda.md`) |
-| 3 | Demand forecasting (XGBoost) | ⏳ next (awaiting Phase 2 review) |
-| 4 | CFLP (Pyomo + CBC) | — |
+| 3 | Demand forecasting (4 approaches, weekly + monthly) | ✅ done (`reports/phase3_forecasting_report.md`) |
+| 4 | CFLP (Pyomo + CBC) | ⏳ next (awaiting Phase 3 review) |
 | 5 | Genetic algorithm vs CFLP | — |
 | 6 | CVRP + Guided Local Search | — |
 | 7 | Integrated pipeline | — |
@@ -29,6 +29,7 @@ python main.py download                  # Kaggle API (see data/raw/README.md), 
 python main.py download --zip archive.zip
 python main.py inspect                   # Phase 1 report + CSVs
 python main.py preprocess                # Phase 2: cleaned data, zones, EDA, figures (~30 s)
+python main.py forecast                  # Phase 3: forecasting, evaluation, CFLP demand input (~7 min)
 pytest -q
 ```
 
@@ -55,6 +56,18 @@ pytest -q
 * All 37 aggregation reconciliation checks pass (item → order → zone-day conservation).
 * At the 2017-10 break, orders per day rise but units per order fall about 6x, customers are new and the
   product mix changes. Zone demand *shares* stay stable (Spearman ρ = 0.93 in CONUS).
+
+## Key findings from Phase 3
+
+* Zone-week demand averages under 1 order per zone. All four approaches sit close to an oracle
+  noise floor in the stable regime. The historical average is as good as XGBoost or Random Forest there.
+* At the October 2017 break, unit forecasts fail by several hundred percent without regime handling.
+  **Puerto Rico's demand relocates about 35 km** (zone shares change almost completely), which corrects
+  the Phase 2 stability claim for PR.
+* Selection (zone-total WAPE, post-break adapted window): CONUS orders use share × recent level,
+  CONUS units use Random Forest (recalibrated), and Puerto Rico uses the post-break average. **XGBoost is not selected.**
+* `data/outputs/cflp_zone_demand_forecast.csv` provides the CFLP demand input: weekly orders and units per zone
+  for 2018-01-28 → 2018-04-28, plus historical scenarios for Experiment C.
 
 ## Layout
 
