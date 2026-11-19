@@ -27,3 +27,6 @@ venv/
 data/outputs/order_demand_predictions.csv
 data/outputs/unit_demand_predictions.csv
 reports/logs/
+
+# Presentation build dependencies
+presentation/build/node_modules/

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Viva Cheat Sheet</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 14mm 14mm; }
+  :root { --ink:#22272B; --muted:#6B655D; --teal:#0F7C74; --coral:#D9653B; --tint:#E2EEEA; --ctint:#F6E3D9; --line:#D8D1C4; }
+  body { font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 10.2pt; line-height: 1.38; background:#fff; margin:0; }
+  h1 { font-size: 20pt; margin: 0 0 2px; } .sub { color: var(--muted); margin: 0 0 10px; }
+  h2 { font-size: 13pt; color: var(--teal); border-bottom: 1px solid var(--line); padding-bottom: 2px; margin: 14px 0 6px; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 8px 0 3px; break-after: avoid; }
+  .slide { break-inside: avoid; margin-bottom: 7px; } .num { color: var(--teal); font-weight: 700; }
+  ul { margin: 2px 0 4px 18px; padding: 0; } li { margin: 1px 0; }
+  .eq { font-family: Cambria, Caladea, Georgia, serif; background:#F7F4EE; border-radius:6px; padding:6px 10px; margin:4px 0; }
+  .qa { break-inside: avoid; margin: 0 0 5px; } .q { font-weight: 700; } .a { margin-left: 12px; }
+  .note { background: var(--ctint); border-radius: 6px; padding: 6px 10px; margin: 6px 0; }
+  .key { background: var(--tint); border-radius: 6px; padding: 6px 10px; margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.5pt; margin: 4px 0 6px; } td, th { border: 1px solid var(--line); padding: 3px 6px; text-align: left; } th { background:#22272B; color:#fff; }
+  .cols { columns: 2; column-gap: 18px; }
+</style></head><body>
+<h1>Viva Cheat Sheet</h1>
+<p class="sub">Demand-Driven E-Commerce Warehouse Location and Multi-Vehicle Delivery Route Optimization Using Hybrid Optimization Algorithms · MSc Data Science, Advanced Analytics and Optimization · numbers from commit dc2e9ed</p>
+
+<div class="key"><b>The 30-second version.</b> DataCo order items → 62,011 locatable orders → 337 bounded-size demand zones → weekly forecasts of orders and units (simple break-aware models won) → exact CFLP (Pyomo + CBC) opens 6 CONUS and 2 Puerto Rico warehouses, proven optimal → GA, K-Means and random are all worse → CVRP per depot with OR-Tools Guided Local Search: 16 vans, 31,610 km/week, all constraints met → forecasting lowered CONUS planning cost by 29.5% but raised Puerto Rico's by 21.6% (biased units forecast).</div>
+
+<h2>Numbers to remember</h2>
+<table>
+<tr><th>Item</th><th>Value</th><th>Item</th><th>Value</th></tr>
+<tr><td>Raw rows × cols</td><td>180,519 × 53</td><td>Orders raw → kept</td><td>65,752 → 62,011</td></tr>
+<tr><td>Units kept</td><td>361,965 (94.2%)</td><td>Zones CONUS / PR / HI</td><td>312 / 25 / 6</td></tr>
+<tr><td>CFLP CONUS total</td><td>$18,497/wk (objective $18,348 + handling $149)</td><td>CFLP Puerto Rico</td><td>$2,510/wk, 2 sites</td></tr>
+<tr><td>GA gap (best / mean)</td><td>+0.58% / +1.71%</td><td>K-Means / Random gap</td><td>+0.85% / +62.8% (PR +27.8% / +35.3%)</td></tr>
+<tr><td>Solver</td><td>optimal, gap 0, 0.96 s, 11,893 vars</td><td>Candidates</td><td>37 CONUS (27 + 7 + 3), 25 PR</td></tr>
+<tr><td>GLS CONUS</td><td>16 vans, 31,610 km, 510 h</td><td>Standard / NN</td><td>31,647 km / 38,635 km (NN infeasible)</td></tr>
+<tr><td>Forecast impact</td><td>CONUS −29.5% (regret 0.4%)</td><td>Puerto Rico</td><td>+21.6% (units +20.4%)</td></tr>
+</table>
+
+<h2>Key equations</h2>
+<div class="eq"><b>CFLP</b>&nbsp; min Z = Σ<sub>j</sub> F<sub>j</sub>Y<sub>j</sub> + Σ<sub>i</sub>Σ<sub>j</sub> c·d<sub>ij</sub>·o<sub>i</sub>·X<sub>ij</sub> &nbsp; s.t. Σ<sub>j</sub>X<sub>ij</sub>=1 ∀i; &nbsp;Σ<sub>i</sub>u<sub>i</sub>X<sub>ij</sub> ≤ Q<sub>j</sub>Y<sub>j</sub> ∀j; &nbsp;X<sub>ij</sub> ≤ Y<sub>j</sub>; &nbsp;p<sub>min</sub> ≤ ΣY<sub>j</sub> ≤ p<sub>max</sub>; &nbsp;X,Y ∈ {0,1}.<br>
+c = $0.10/order-km; F = $1,500/wk (PR $1,200); Q = 80 units/wk (PR 100); p ∈ [1,12] (PR [1,4]); d = 1.2 × great-circle km. Orders o<sub>i</sub> → cost; units u<sub>i</sub> → capacity.</div>
+<div class="eq"><b>GA fitness</b>&nbsp; f(y) = Σ<sub>j</sub>F<sub>j</sub>y<sub>j</sub> + transport(A(y)) + M·unserved(y), &nbsp;M = $10,000/unit; A(y) = capacity-feasible regret allocation; best y re-allocated exactly by CBC.</div>
+<div class="eq"><b>CVRP</b>&nbsp; min Σ<sub>k</sub>Σ<sub>i</sub>Σ<sub>j</sub> d<sub>ij</sub>x<sub>ijk</sub> &nbsp; s.t. each stop once (or penalised drop, reported); start/end at depot; load ≤ 30 packages; route ≤ 3,000 km (PR 400); ≤ 8 vans/depot.</div>
+<div class="eq"><b>GLS</b>&nbsp; utility(a) = c<sub>a</sub>/(1+p<sub>a</sub>); &nbsp;g(s) = cost(s) + λ Σ<sub>a</sub> p<sub>a</sub> I<sub>a</sub>(s); &nbsp;10 s per depot; best true-cost solution returned.</div>
+<div class="eq"><b>XGBoost</b>&nbsp; L = Σ l(y,ŷ) + Σ<sub>k</sub>[γT + ½λ‖w‖²]; &nbsp;w<sub>j</sub>* = −G<sub>j</sub>/(H<sub>j</sub>+λ); &nbsp;gain = ½[G<sub>L</sub>²/(H<sub>L</sub>+λ) + G<sub>R</sub>²/(H<sub>R</sub>+λ) − (G<sub>L</sub>+G<sub>R</sub>)²/(H<sub>L</sub>+H<sub>R</sub>+λ)] − γ.</div>
+<div class="eq"><b>Metrics</b>&nbsp; WAPE = Σ|e|/Σy &nbsp;·&nbsp; Cost reduction % = (baseline − optimised)/baseline × 100 &nbsp;·&nbsp; Utilisation = used/available × 100.</div>
+
+<h2>Slide-by-slide talking points</h2>
+<div class="cols">
+<div class="slide"><span class="num">1 Title.</span> Two linked decisions: where the warehouses go, and how the vans run. The background is the real GLS route output.</div>
+<div class="slide"><span class="num">2 Problem.</span> Location sets the cost base, capacity limits the allocation, routes cost money every week, and demand moves. Solved <i>in sequence</i>, not jointly.</div>
+<div class="slide"><span class="num">3 Objectives.</span> Eight objectives, each measured against baselines on identical inputs. The contribution is integration plus honest benchmarking.</div>
+<div class="slide"><span class="num">4 Cleaning.</span> Items → orders, because one order is one delivery. Cancelled and fraud orders never ship (−2,855). Bad coordinates are not repaired (−886). PII dropped. 37/37 checks. Rows flagged, not deleted.</div>
+<div class="slide"><span class="num">5 Zones.</span> Complete linkage bounds the zone diameter (50 / 10 km), and it's deterministic. These are customer coordinates, not delivery addresses. Puerto Rico is separate.</div>
+<div class="slide"><span class="num">6 Architecture.</span> Strategic row → operational row, connected by real files. <code>python main.py all</code>; 54 min; 69 tests.</div>
+<div class="slide"><span class="num">7 Forecasting.</span> Weekly; orders and units separate; 4 methods; 29 leakage-tested features. The break took units/order from 6.5 to 1. XGBoost lost to simple, break-aware methods.</div>
+<div class="slide"><span class="num">8 CFLP math.</span> Y = open, X = assign. Objective = fixed + transport. Constraints: assign once, capacity, linking, count. Handling is a constant.</div>
+<div class="slide"><span class="num">9 Solver.</span> 37 candidates (coverage + demand); Pyomo; CBC branch-and-cut; optimal = bound equals incumbent; independent recomputation of costs.</div>
+<div class="slide"><span class="num">10 GA.</span> 37-bit chromosome; tournament, two-point crossover, bit-flip mutation, repair, elitism; 5 seeds. Convergence ≠ optimality.</div>
+<div class="slide"><span class="num">11 Results.</span> CFLP best everywhere. GA +0.58%, K-Means +0.85%, random +62.8% (CONUS). In Puerto Rico, K-Means +27.8% because it ignores capacity.</div>
+<div class="slide"><span class="num">12 Sites.</span> 6 sites: the marginal site saves less than its $1,500. Brooklyn and Long Beach are near full, so demand overflows. Puerto Rico needs 2 because of capacity.</div>
+<div class="slide"><span class="num">13 CVRP.</span> Depot per warehouse; 30 packages; 3,000 km; 8 vans. One package = one order. Warehouse capacity ≠ van capacity.</div>
+<div class="slide"><span class="num">14 GLS.</span> Construct → local search → penalise high-utility arcs at a local minimum → continue on the augmented cost → 10 s. Dallas: NN breaks the limit.</div>
+<div class="slide"><span class="num">15 Routing results.</span> Fair: −0.12% vs standard (both feasible). Not fair: −18.2% vs NN (infeasible). Small instances explain the small gain.</div>
+<div class="slide"><span class="num">16 Forecast impact.</span> Same origin and same held-out 13 weeks. CONUS −29.5%; Puerto Rico +21.6% because a transitional week inflated units → a 3rd warehouse. The oracle is a yardstick, not a method.</div>
+<div class="slide"><span class="num">17 Sensitivity.</span> U-shape with its minimum at 6. Cheaper sites → more sites; cheaper km → fewer sites. Puerto Rico breaks at +10%. Time-limited runs show gaps.</div>
+<div class="slide"><span class="num">18 Dashboard.</span> 8 pages; what-if re-solves CFLP + CVRP live; <code>streamlit run dashboard/app.py</code>.</div>
+<div class="slide"><span class="num">19 Conclusion.</span> Exact optimisation dominated; forecasting helps only when unbiased. Limitations: simulated costs, approximate distances, short post-break history, sequential optimisation.</div>
+</div>
+
+<h2>Why these methods?</h2>
+<ul>
+<li><b>CFLP over K-Means.</b> The CFLP prices fixed cost, capacity and the warehouse count. K-Means minimises geometry only. Measured: K-Means is +0.85% (CONUS) and +27.8% (Puerto Rico).</li>
+<li><b>CBC + Pyomo.</b> Open-source, gives a proven optimum with a gap, and an algebraic model that is readable and testable (it matches brute force on toy instances).</li>
+<li><b>The GA.</b> A flexible benchmark for when a MILP becomes intractable. Here it quantifies heuristic sub-optimality against a certified optimum.</li>
+<li><b>OR-Tools GLS.</b> A strong metaheuristic for CVRP. The comparison with greedy descent isolates the value of the metaheuristic itself.</li>
+<li><b>Simple forecasters.</b> Demand is near-stationary noise, and the decisive issue is a regime shift. Model selection was by measured zone-total WAPE.</li>
+<li><b>Complete-linkage zones.</b> A guaranteed maximum diameter, verified exactly. K-Means cannot bound zone size.</li>
+</ul>
+
+<h2>Likely professor questions</h2>
+<div class="cols">
+<div class="qa"><div class="q">Why remove cancelled orders?</div><div class="a">They never ship (all are 'Shipping canceled'), so keeping them would overstate demand.</div></div>
+<div class="qa"><div class="q">Why aggregate items into orders?</div><div class="a">One order = one delivery. Rows are items, so using them would triple-count trips.</div></div>
+<div class="qa"><div class="q">Why demand zones?</div><div class="a">The CFLP needs demand at locations. Zones of bounded size make it tractable (312 CONUS points).</div></div>
+<div class="qa"><div class="q">Why forecast orders and units separately?</div><div class="a">Orders drive transport cost and units drive capacity. Their ratio changed from about 6.5 to 1 at the break.</div></div>
+<div class="qa"><div class="q">Why didn't XGBoost win?</div><div class="a">Sparse, noisy counts around a level leave little nonlinear signal, and the post-break shift can't be learned from pre-break data.</div></div>
+<div class="qa"><div class="q">What is a binary decision variable?</div><div class="a">A 0/1 variable: open or not (Y<sub>j</sub>), assigned or not (X<sub>ij</sub>).</div></div>
+<div class="qa"><div class="q">How does CBC prove optimality?</div><div class="a">LP relaxations and cuts give a lower bound. When the best feasible cost meets the bound, the gap is 0 and the solution is optimal.</div></div>
+<div class="qa"><div class="q">What if capacity is exceeded?</div><div class="a">It's forbidden. In experiments, a penalised slack reports unserved units explicitly, at $10,000/unit.</div></div>
+<div class="qa"><div class="q">How does the chromosome work?</div><div class="a">37 bits, one per candidate site. 1 = open. Repair keeps the number of open sites between 4 and 12.</div></div>
+<div class="qa"><div class="q">Why a GA if the CFLP is exact?</div><div class="a">As a benchmark, and for problem variants where the MILP is intractable.</div></div>
+<div class="qa"><div class="q">Why can the GA be worse?</div><div class="a">It's stochastic, has no bound, and can stall in local optima (mean +1.71%).</div></div>
+<div class="qa"><div class="q">CVRP vs TSP?</div><div class="a">TSP is one vehicle with no capacity. CVRP adds capacity, so it must also partition stops across vehicles.</div></div>
+<div class="qa"><div class="q">Why return to the depot?</div><div class="a">To reload. It also makes every route a closed tour in the model.</div></div>
+<div class="qa"><div class="q">How does GLS escape local minima?</div><div class="a">It penalises frequent long arcs, which changes the landscape so the search moves on. The final choice uses the true cost.</div></div>
+<div class="qa"><div class="q">Why only 0.12% from GLS?</div><div class="a">12–36 stops per depot with a binding length limit, so greedy descent is already near-optimal.</div></div>
+<div class="qa"><div class="q">Why is the NN comparison not fair?</div><div class="a">NN breaks the 3,000 km limit on 5 routes, so it isn't a valid plan.</div></div>
+<div class="qa"><div class="q">Why did forecasting help CONUS but hurt Puerto Rico?</div><div class="a">CONUS was nearly unbiased. Puerto Rico units were +20.4% (transitional week), which bought a whole extra warehouse.</div></div>
+<div class="qa"><div class="q">What is a perfect-information benchmark?</div><div class="a">A plan built on the realised demand: the best possible plan in hindsight, used to measure regret.</div></div>
+<div class="qa"><div class="q">Are these actual costs and routes?</div><div class="a">No. Costs are documented assumptions, distances are great-circle × 1.2, and lines are straight segments.</div></div>
+<div class="qa"><div class="q">Could a company use this?</div><div class="a">The method, yes. It's configuration-driven, so you'd plug in real costs, capacities, road times and time windows.</div></div>
+<div class="qa"><div class="q">Why does $18,348 differ from $18,497?</div><div class="a">Same solution: $18,348 is the solver objective (opening + transport), and $18,497 adds a constant $148.90 handling cost.</div></div>
+<div class="qa"><div class="q">Were all solves optimal?</div><div class="a">All main solves, yes. 6 of 34 CONUS sensitivity solves and one Experiment C plan hit 120 s. They're reported as incumbents with their gaps.</div></div>
+</div>
+<div class="note"><b>Honesty points to volunteer:</b> the sequential (not joint) optimisation; the simulated costs; the approximate distances; the Puerto Rico forecast bias; the small GLS gain; and that XGBoost was not selected.</div>
+</body></html>
