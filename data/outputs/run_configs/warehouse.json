@@ -1,6 +1,6 @@
 {
   "stage": "warehouse",
-  "timestamp": "2026-11-18 20:14:41",
+  "timestamp": "2026-11-18 21:36:27",
   "optimization": {
     "demand_file": "data/outputs/cflp_zone_demand_forecast.csv",
     "demand_columns": {

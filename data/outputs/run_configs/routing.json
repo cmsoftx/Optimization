@@ -1,6 +1,6 @@
 {
   "stage": "routing",
-  "timestamp": "2026-11-18 20:17:44",
+  "timestamp": "2026-11-18 21:02:34",
   "optimization": {
     "demand_file": "data/outputs/cflp_zone_demand_forecast.csv",
     "demand_columns": {

@@ -41,6 +41,7 @@ def test_cflp_is_reproducible():
 def test_solver_report_is_honest():
     r = pd.read_csv(OUT / "cflp_solver_report.csv")
     assert (r["proven_optimal"] == (r["termination"] == "optimal")).all()
+    assert r.loc[r["proven_optimal"], "relative_gap"].fillna(0).le(1e-3).all()
 
 
 def test_warehouse_comparison_consistent():

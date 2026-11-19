@@ -280,13 +280,19 @@ def fig_sensitivity(sens: pd.DataFrame) -> Path:
             g = w[(w["parameter"] == p) & (w["network"] == net)].sort_values("value")
             if g.empty:
                 continue
-            ax.plot(g["value"], g["total_cost"], color=NET_COLORS[net], marker="o", label=net)
+            ok = g[g["feasible"].astype(bool)]
+            bad = g[~g["feasible"].astype(bool)]
+            ax.plot(ok["value"], ok["total_cost"], color=NET_COLORS[net], marker="o", label=net)
+            if len(bad):
+                ax.scatter(bad["value"], bad["total_cost"], s=60, facecolors="none", edgecolors=NET_COLORS[net],
+                           linewidths=1.5, label=f"{net}: infeasible (unserved demand; cost excl. penalty)")
             for r in g.itertuples():
-                ax.annotate(f"{r.n_open}" + ("" if r.feasible else "✗"), (r.value, r.total_cost), xytext=(0, 6),
+                ax.annotate(f"{int(r.n_open)}" + ("" if r.feasible else " ✗"), (r.value, r.total_cost), xytext=(0, 6),
                             textcoords="offset points", ha="center", fontsize=7.5, color=NET_COLORS[net])
         ax.set_xlabel(lab); ax.set_ylabel("total cost USD/wk")
         ax.set_title(f"{lab}", fontsize=10)
-    axes[0, 0].legend(fontsize=8)
+    axes[0, 0].legend(fontsize=7)
+    axes[0, 1].legend(fontsize=7)
     fig.suptitle("Experiment D: CFLP sensitivity (labels = warehouses opened; ✗ = infeasible / unserved demand)",
                  fontweight="bold")
     return _save(fig, "phase8_sensitivity_warehouse.png")

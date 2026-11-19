@@ -88,6 +88,7 @@ class CFLPSolution:
     method: str = "CFLP (Pyomo + CBC)"
     n_variables: int = 0
     n_constraints: int = 0
+    bound_note: str = ""
 
     @property
     def n_open(self) -> int:
@@ -230,9 +231,15 @@ def solve_cflp(prob: NetworkProblem, fixed_open: np.ndarray | None = None, allow
     lb = res.problem.lower_bound
     lb = float(lb) if lb is not None and np.isfinite(float(lb)) else float("nan")
     gap = (obj - lb) / abs(obj) if np.isfinite(lb) and obj else float("nan")
+    note = ""
+    if term == "optimal" and np.isfinite(gap) and gap > scfg["mip_rel_gap"] + 1e-9:
+        # CBC proved optimality within `ratio`, but the bound Pyomo parsed from its log contradicts that
+        # (observed when some zones can never fit any warehouse). Do not report a bound we cannot trust.
+        note = f"CBC reports optimal; parsed lower bound {lb:.6g} inconsistent with ratio tolerance, not reported"
+        lb, gap = float("nan"), float("nan")
     return CFLPSolution(prob.network, Y, assign, S, status, term, obj, lb, max(gap, 0.0) if np.isfinite(gap) else gap, rt,
                         method or ("Exact allocation (CBC, fixed warehouses)" if fixed_open is not None else "CFLP (Pyomo + CBC)"),
-                        m.nvariables(), m.nconstraints())
+                        m.nvariables(), m.nconstraints(), note)
 
 
 def evaluate_configuration(prob: NetworkProblem, open_mask: np.ndarray, assign: np.ndarray,
@@ -282,7 +289,7 @@ def solve_all_networks(networks=NETWORKS, overrides: dict | None = None) -> dict
 def solver_report_row(prob: NetworkProblem, sol: CFLPSolution) -> dict:
     return {"network": prob.network, "method": sol.method, "solver": load_config()["optimization"]["solver"]["name"],
             "status": sol.status, "termination": sol.termination,
-            "proven_optimal": sol.termination == "optimal" and (not np.isfinite(sol.gap) or sol.gap <= 1e-3),
+            "proven_optimal": sol.termination == "optimal", "bound_note": sol.bound_note,
             "objective_excl_handling": sol.objective, "lower_bound": sol.lower_bound, "relative_gap": sol.gap,
             "runtime_s": sol.runtime_s, "n_zones": prob.n_zones, "n_candidates": prob.n_candidates,
             "n_variables": sol.n_variables, "n_constraints": sol.n_constraints,

@@ -1,0 +1,16 @@
+check,passed,detail
+every demand zone is allocated,True,"337 rows, 337 zones"
+no closed warehouse serves demand,True,
+warehouse capacity respected (units/week),True,max utilisation 94.2%
+zone and warehouse in the same network,True,
+vehicle capacity respected,True,max load 30 / 30
+routes start and end at their depot,True,
+each stop is routed from the warehouse its zone is allocated to,True,
+stop network equals route network (no mainland-island routes),True,
+no stop visited twice,True,
+CONUS: all forecast packages routed (largest-remainder rounding per depot),True,278 vs 278
+CONUS: route length <= 3000 km,True,
+Puerto Rico: all forecast packages routed (largest-remainder rounding per depot),True,175 vs 175
+Puerto Rico: route length <= 400 km,True,
+CONUS: transport/opening cost recomputed from allocation,True,"transport 9348.36, opening 9000"
+Puerto Rico: transport/opening cost recomputed from allocation,True,"transport 21.76, opening 2400"

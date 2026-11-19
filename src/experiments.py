@@ -136,6 +136,7 @@ def experiment_c() -> pd.DataFrame:
                 "plan_runtime_s": rt, "plan_solver_termination": plan.termination,
                 "plan_best_objective_incl_penalty": plan.objective, "plan_lower_bound": plan.lower_bound,
                 "plan_relative_gap": plan.gap, "plan_proven_optimal": plan.termination == "optimal",
+                "plan_bound_note": plan.bound_note,
                 "recourse_termination": rec.termination, "recourse_relative_gap": rec.gap})
     df = pd.DataFrame(rows)
     for net in NETWORKS:
@@ -156,7 +157,8 @@ def _cflp_point(net: str, parameter: str, value, overrides: dict, demand=None) -
     return {"experiment": "warehouse", "network": net, "parameter": parameter, "value": value, **ev,
             "n_zones": prob.n_zones, "n_candidates": prob.n_candidates, "termination": sol.termination,
             "proven_optimal": sol.termination == "optimal", "best_objective_incl_penalty": sol.objective,
-            "lower_bound": sol.lower_bound, "relative_gap": sol.gap, "runtime_s": time.perf_counter() - t0}
+            "lower_bound": sol.lower_bound, "relative_gap": sol.gap, "bound_note": sol.bound_note,
+            "runtime_s": time.perf_counter() - t0}
 
 
 def zones_for_diameter(diameter_km: float, network: str = "CONUS") -> pd.DataFrame:

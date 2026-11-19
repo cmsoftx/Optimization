@@ -505,6 +505,19 @@ def build_final_report(f: dict) -> str:
         "and splitting is allowed only for routing.",
         "* **GLS timing:** GLS results depend on the time limit. Time-limited CFLP runs in experiments report their gap "
         "(`termination` / `plan_relative_gap` columns).",
+        "* **Sensitivity GLS budget:** the routing sensitivity runs use a 3 s GLS budget per depot (main run: "
+        f"{rcfg['time_limit_s_per_depot']} s). The capacity-30 sensitivity point (31,631 km) therefore differs slightly "
+        "from the main result.",
+        "* **Robustness routing:** in the robustness experiment, routes keep the *planned* zone allocation and scale its "
+        "packages. The warehouse columns show the effect of re-allocating instead. That is why a scenario can show "
+        "unserved warehouse units while every route is feasible: a single zone larger than one warehouse's capacity "
+        "cannot be single-sourced.",
+        "* **Infeasible sensitivity points:** for points marked infeasible, `total_cost` excludes the unserved-demand "
+        "penalty. Compare them through `unserved_units`, not cost.",
+        "* **Bound parsing:** in one Experiment C plan (Puerto Rico, historical demand), CBC reported `optimal`, but the "
+        "lower bound parsed by Pyomo contradicted the 1e-4 tolerance. Its bound and gap are reported as unavailable "
+        "(`plan_bound_note`) rather than as a 35% gap. A direct check confirms optimality: the only unserved units are "
+        "two zones that individually exceed a warehouse's capacity.",
         "",
         "## 18. Future improvements",
         "",

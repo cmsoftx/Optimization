@@ -1,6 +1,6 @@
 {
   "stage": "genetic",
-  "timestamp": "2026-11-18 20:16:24",
+  "timestamp": "2026-11-18 21:01:13",
   "optimization": {
     "demand_file": "data/outputs/cflp_zone_demand_forecast.csv",
     "demand_columns": {

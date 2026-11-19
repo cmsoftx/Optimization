@@ -1,0 +1,52 @@
+section,network,metric,value,unit,source,baseline,improvement_pct
+data,ALL,raw order-item rows,180519,rows,actual,,
+data,ALL,orders in demand set,62011,orders,actual,,
+data,ALL,units in demand set,361965,units,actual,,
+forecast,CONUS,demand zones,312,zones,actual,,
+forecast,CONUS,forecast orders per week,279.5,orders/week,forecast,,
+forecast,CONUS,forecast units per week,297.80760476515593,units/week,forecast,,
+forecast,Puerto Rico,demand zones,25,zones,actual,,
+forecast,Puerto Rico,forecast orders per week,175.5,orders/week,forecast,,
+forecast,Puerto Rico,forecast units per week,175.5,units/week,forecast,,
+forecast,CONUS,orders model,share_x_recent_level (regime_reset),,forecast,,
+forecast,CONUS,orders zone-total WAPE (13 held-out weeks),0.242074379845805,ratio,forecast,,
+forecast,Puerto Rico,orders model,post_break_average (regime_reset),,forecast,,
+forecast,Puerto Rico,orders zone-total WAPE (13 held-out weeks),0.254384042086804,ratio,forecast,,
+forecast,CONUS,units model,random_forest (recalibrated),,forecast,,
+forecast,CONUS,units zone-total WAPE (13 held-out weeks),0.3036125937976485,ratio,forecast,,
+forecast,Puerto Rico,units model,post_break_average (regime_reset),,forecast,,
+forecast,Puerto Rico,units zone-total WAPE (13 held-out weeks),0.4624068391056554,ratio,forecast,,
+warehouse,CONUS,warehouses opened,6.0,warehouses,simulated,,
+warehouse,CONUS,opening cost per week,9000.0,USD/week,simulated,,
+warehouse,CONUS,transport cost per week,9348.360206555471,USD/week,simulated,,
+warehouse,CONUS,total CFLP cost per week (incl. handling),18497.26400893805,USD/week,simulated,,
+warehouse,CONUS,mean warehouse utilisation,62.04325099274083,%,simulated,,
+warehouse,CONUS,CFLP vs Random: total cost,18497.26400893805,USD/week,simulated,30117.7990920159,38.583613123836805
+warehouse,CONUS,CFLP vs K-Means: total cost,18497.26400893805,USD/week,simulated,18655.34962860501,0.8474010019333013
+warehouse,CONUS,CFLP vs Genetic: total cost,18497.26400893805,USD/week,simulated,18604.638821625027,0.5771400010311903
+warehouse,Puerto Rico,warehouses opened,2.0,warehouses,simulated,,
+warehouse,Puerto Rico,opening cost per week,2400.0,USD/week,simulated,,
+warehouse,Puerto Rico,transport cost per week,21.75965459303088,USD/week,simulated,,
+warehouse,Puerto Rico,total CFLP cost per week (incl. handling),2509.509654593031,USD/week,simulated,,
+warehouse,Puerto Rico,mean warehouse utilisation,87.75,%,simulated,,
+warehouse,Puerto Rico,CFLP vs Random: total cost,2509.509654593031,USD/week,simulated,3394.689125756984,26.075420704880194
+warehouse,Puerto Rico,CFLP vs K-Means: total cost,2509.509654593031,USD/week,simulated,3206.387534259023,21.73405030490291
+warehouse,Puerto Rico,CFLP vs Genetic: total cost,2509.509654593031,USD/week,simulated,2509.509654593031,0.0
+routing,CONUS,vehicles used (GLS),16,vehicles,simulated,,
+routing,CONUS,total route distance per week (GLS),31610.439,approx road km,simulated,,
+routing,CONUS,total route duration per week (GLS),509.6477794871795,hours,simulated,,
+routing,CONUS,routing cost per week (GLS),44351.63348717949,USD/week,simulated,,
+routing,CONUS,GLS vs nearest_neighbor: distance,31610.439,km,simulated,38635.491,18.182898206211494
+routing,CONUS,GLS vs ortools_standard: distance,31610.439,km,simulated,31647.268,0.1163733943795766
+routing,Puerto Rico,vehicles used (GLS),7,vehicles,simulated,,
+routing,Puerto Rico,total route distance per week (GLS),173.579,approx road km,simulated,,
+routing,Puerto Rico,total route duration per week (GLS),6.172808333333333,hours,simulated,,
+routing,Puerto Rico,routing cost per week (GLS),327.8992083333333,USD/week,simulated,,
+routing,Puerto Rico,GLS vs nearest_neighbor: distance,173.579,km,simulated,173.579,0.0
+routing,Puerto Rico,GLS vs ortools_standard: distance,173.579,km,simulated,173.579,0.0
+operating cost,CONUS,estimated operating cost per week (warehouses + handling + routes),53500.53728956207,USD/week,simulated,,
+operating cost,CONUS,estimated operating cost per year,2782027.9390572277,USD/year,simulated,,
+operating cost,Puerto Rico,estimated operating cost per week (warehouses + handling + routes),2815.6492083333333,USD/week,simulated,,
+operating cost,Puerto Rico,estimated operating cost per year,146413.75883333333,USD/year,simulated,,
+forecast impact,CONUS,realised weekly cost: forecast plan vs historical plan,18594.38150784131,USD/week,simulated,26377.063656180435,29.505491019716125
+forecast impact,Puerto Rico,realised weekly cost: forecast plan vs historical plan,3702.6217044119526,USD/week,simulated,3044.724801721321,-21.60776245914549

@@ -118,7 +118,8 @@ streamlit run dashboard/app.py
 ```
 
 `python main.py all` reuses existing Phase 2/3 outputs; add `--force` to recompute them as well. Use `--quick` to skip
-experiments C–E. The dashboard opens at http://localhost:8501.
+experiments C–E. The dashboard opens at http://localhost:8501. Its maps use OpenStreetMap tiles, which load in a
+normal browser; without internet access the markers and routes still draw, on a blank background.
 
 **Dashboard pages:**
 
@@ -200,6 +201,38 @@ methods produce identical routes (7 vehicles, 174 km).
   warehouse.
 
 Sensitivity and robustness results: `reports/final_project_report.md` §15.
+
+### Cost reconciliation: $18,348 vs $18,497 per week (CONUS)
+
+Both figures describe the **same proven-optimal solution under the same configuration**: 6 warehouses, capacity
+80 units/week, fixed cost $1,500/week, $0.10 per order-km.
+
+* **$18,348.36** is the CFLP objective that CBC minimises: opening $9,000 + transport $9,348.36.
+  It is reported in `cflp_solver_report.csv` as `objective_excl_handling` and elsewhere as `cflp_objective_excl_handling`.
+* **$18,497.26** adds the constant handling cost: $0.50 × 297.81 units = $148.90. Handling is identical for every
+  feasible solution, so it cannot change the optimum. All comparison tables use this `total_cost`.
+
+### Puerto Rico forecast overestimation
+
+* **Back-test result:** over the 13 held-out weeks, the selected Puerto Rico units forecast (post-break average) was
+  **+20.4%** high. The orders forecast was −3.0%.
+* **Cause:** the 4-week calibration window contains the transitional week of 1–7 Oct 2017, at 1.96 units/order.
+  Every later week is exactly 1.00.
+* **Consequence:** in Experiment C the forecast-based plan opened a third warehouse, and realised costs were 21.6%
+  higher than the historical-average plan's.
+* **Forward forecast:** the CFLP input (175.5 units/week) is calibrated on January 2018 (1.00 units/order), so it is
+  not affected. Details are in `reports/final_project_report.md` §16b.
+
+### Verification (latest full run)
+
+* **Full pipeline:** `python main.py all --force` exited with code 0 after 3,226 s.
+* **Consistency checks:** 15/15 cross-module checks pass.
+* **Tests:** `pytest` reports 69 passed, 0 failed, 0 skipped.
+* **Notebooks:** all 7 execute without errors.
+* **Dashboard:** all 8 pages render in Chromium with no exceptions. The what-if page re-solves live.
+* **Privacy scan:** 0 real customer names or street addresses in any Git-tracked file, log or output.
+* **Time-limited solves:** CFLP runs that hit the 120 s limit are listed with incumbent, bound and gap in
+  `reports/final_project_report.md` §16c. Only CBC-proven solutions are labelled optimal.
 
 ## Output files (`data/outputs/`)
 
