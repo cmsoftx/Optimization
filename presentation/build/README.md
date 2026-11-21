@@ -30,4 +30,4 @@
 
 ## Easy version
 
-`build_easy.js` builds `Ecommerce_Optimization_Easy_Presentation.pptx`: 20 slides in plain language, with no formulas and with simple speaker notes. It reuses the same figures and the same verified numbers. Build it the same way as step 3, with `build_easy.js` and a different `OUTFILE`.
+`build_easy.js` builds `Ecommerce_Optimization_Easy_Presentation.pptx`: 12 slides in plain language, with no formulas and with simple speaker notes. It reuses the same figures and the same verified numbers. Build it the same way as step 3, with `build_easy.js` and a different `OUTFILE`.
