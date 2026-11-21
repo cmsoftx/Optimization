@@ -146,9 +146,15 @@ function eq(str, opts = {}) {
     { text: "Advanced Analytics and Optimisation (25MSD5303)", options: { breakLine: true } },
     { text: "Guide: Ms. Jithy Lijo · Dayananda Sagar University" }],
     { x: 0.6, y: 5.2, w: 6.6, h: 1.4, fontSize: 14, color: "D8D1C4", paraSpaceAfter: 2 });
-  s.addNotes(`Good morning. My name is C M Karthik. My project is about helping an online store decide where to put its warehouses and how to deliver parcels to customers at the lowest cost.
+  s.addNotes(`[About 45 seconds]
 
-I use real order data, predict future demand, and then use optimisation methods to choose warehouses and plan delivery routes.`);
+Good morning, respected faculty and dear friends. My name is C M Karthik, USN SCA25MSD019, from M.Sc. Data Science. I carried out this case study under the guidance of Ms. Jithy Lijo.
+
+My project title is "Demand-Driven E-Commerce Warehouse Location and Multi-Vehicle Delivery Route Optimization Using Hybrid Optimization Algorithms".
+
+In simple words: I help an online store decide three things. How much its customers will order, where it should open its warehouses, and how its delivery vans should travel, all at the lowest possible cost.
+
+I worked with real order data, and I will show you real results from my own code.`);
 
   // 2 Problem
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Introduction" });
@@ -164,14 +170,17 @@ I use real order data, predict future demand, and then use optimisation methods 
     T(s, d, { x: x + 0.35, y: 4.1, w: 3.2, h: 1.4, fontSize: 15, color: HEX.muted });
   });
   takeaway(s, "Easy example: like a pizza chain: guess the orders, choose where to open kitchens, plan the bike routes, at the lowest total cost.");
-  s.addNotes(`Every online store faces three simple questions.
-First, how much will customers order next week, and where?
-Second, where should we open warehouses? More warehouses means more rent, fewer warehouses means longer trips.
-Third, how should our vans drive, so that no van is overloaded and no route is too long?
+  s.addNotes(`[About 1 minute]
 
-My project answers all three questions, one after the other.
+Let me start with the problem. Every online store must answer three questions.
 
-An easy way to picture it: a pizza chain in a new city. It guesses how many pizzas each area will order, chooses where to open kitchens, and plans the delivery bike routes. Too many kitchens cost too much rent; too few make trips too long. I find the best balance.`);
+[Point to card 1] First: how much will customers order? Demand is different in every city and changes every week, so we must predict it.
+
+[Point to card 2] Second: where should we open warehouses? Every warehouse costs rent and has a limited size. If the warehouse is far from customers, every delivery becomes long and costly.
+
+[Point to card 3] Third: how should the vans deliver? A van can carry only a limited number of parcels, and it can drive only a limited distance.
+
+[Point to the takeaway] An easy way to imagine this is a pizza chain opening in a new city. It guesses how many pizzas each area will order, chooses where to open its kitchens, and plans the routes of its delivery bikes. Too many kitchens means too much rent. Too few kitchens means very long trips. My project finds the best balance for an online store.`);
 
   // 4 Objectives
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Introduction" });
@@ -186,13 +195,18 @@ An easy way to picture it: a pizza chain in a new city. It guesses how many pizz
     T(s, [{ text: a, options: { bold: true, fontSize: 18, breakLine: true } }, { text: b, options: { fontSize: 15, color: HEX.muted } }],
       { x: x + 1.1, y: y + 0.15, w: 4.7, h: 0.95, valign: "middle" });
   });
-  s.addNotes(`I had six objectives.
-One, clean the data and group nearby customers into zones.
-Two, predict how much each zone will order every week.
-Three, choose the best warehouses with an exact optimisation method.
-Four, compare that with a Genetic Algorithm and with simple methods.
-Five, plan delivery routes for the vans.
-Six, test the plan: does forecasting really help, and what happens if costs or demand change?`);
+  s.addNotes(`[About 45 seconds]
+
+These are my six objectives.
+
+One: clean the data and group nearby customers into areas called zones.
+Two: predict the demand for each zone, week by week.
+Three: choose the best warehouses with an exact optimisation method.
+Four: compare that answer with a Genetic Algorithm and with simple methods like K-Means and random selection.
+Five: plan the delivery routes for the vans from each warehouse.
+Six: test the plan. Does forecasting really help? And what happens if something changes?
+
+So the project goes all the way from raw data to a final delivery plan.`);
 
   // Data + zones
   pres.addSection({ title: "Data" });
@@ -205,13 +219,15 @@ Six, test the plan: does forecasting really help, and what happens if costs or d
     { x: 0.6, y: 4.8, w: 5.3, h: 1.4, fontSize: 14, paraSpaceAfter: 2 });
   s.addImage({ ...(await fit(path.join(FIG, "zones_map.png"), 6.1, 1.6, 6.65, 4.45)), altText: "Map of demand zones" });
   takeaway(s, "Puerto Rico is an island with no road from the mainland, so it is planned as a separate network.", 6.28);
-  s.addNotes(`I used a public dataset from Kaggle called DataCo Smart Supply Chain: 180,519 rows from 2015 to 2018.
+  s.addNotes(`[About 1 minute 15 seconds]
 
-I cleaned it: I removed cancelled and fraud orders, because they were never delivered, and orders with wrong locations. That leaves 62,011 orders. I also removed personal details like names and streets.
+I used a public dataset from Kaggle called the DataCo Smart Supply Chain dataset. [Point to 180,519] It has 180,519 order lines from 2015 to 2018.
 
-Thousands of addresses are too many to plan one by one, so I grouped nearby customers into zones: 312 in the USA and 25 in Puerto Rico. Each bubble on the map is a zone; bigger means more demand.
+First I cleaned the data. I removed cancelled and suspected-fraud orders, because they were never delivered. I removed orders with wrong or missing locations. And I removed personal details such as customer names and street addresses, to protect privacy. [Point to 62,011] After cleaning, 62,011 orders remain.
 
-Puerto Rico is an island, so I plan it separately.`);
+There are thousands of customer locations, which is too many to plan one by one. So I grouped customers who live close to each other into zones. [Point to the map] Each bubble is one zone, and a bigger bubble means more demand. The USA has 312 zones, each at most 50 km wide. Puerto Rico has 25 smaller zones.
+
+[Point to the takeaway] Puerto Rico is an island, so trucks cannot drive there from the mainland. That is why I plan it as a separate network.`);
 
   // 7 Method
   pres.addSection({ title: "Method" });
@@ -231,12 +247,17 @@ Puerto Rico is an island, so I plan it separately.`);
     if (i < 2) s.addShape(pres.shapes.RIGHT_ARROW, { x: x + 3.8, y: 3.55, w: 0.35, h: 0.45, fill: { color: HEX.teal }, line: { color: HEX.teal } });
   });
   takeaway(s, "\"Hybrid\" = machine learning + exact optimisation + smart search methods working together.");
-  s.addNotes(`My method has three steps.
-Step one: predict how much each zone will order each week.
-Step two: use that prediction to choose which warehouses to open, and which zones each warehouse serves.
-Step three: plan the delivery routes for the vans from each warehouse.
+  s.addNotes(`[About 1 minute]
 
-Each step gives its answer to the next step. That is why the title says "hybrid": I combine machine learning, an exact optimiser, and smart search methods like the Genetic Algorithm and Guided Local Search.`);
+This slide shows my approach. It has three steps, done one after the other.
+
+[Point to step 1] Step one: predict demand, meaning how much each zone will order each week. Here I used simple averages, Random Forest and XGBoost.
+
+[Point to step 2] Step two: choose the warehouses. Using the predicted demand, I decide which warehouses to open and which zones each warehouse will serve. Here I used an exact optimiser, built in Python with Pyomo and solved with the CBC solver, and I compared it with a Genetic Algorithm.
+
+[Point to step 3] Step three: plan the delivery routes for the vans, using Google OR-Tools with a method called Guided Local Search.
+
+[Point to the takeaway] The answer of each step becomes the input of the next step. That is why the title says "hybrid": I combine machine learning, exact optimisation and smart search methods in one pipeline.`);
 
   // 8 Forecast
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Method" });
@@ -256,15 +277,19 @@ Each step gives its answer to the next step. That is why the title says "hybrid"
     { text: "A simple average was as good as XGBoost. A complex model is not always better." }],
     { x: 8.2, y: 1.65, w: 4.55, h: 4.3, fontSize: 15, paraSpaceAfter: 6 });
   takeaway(s, "A good forecast must notice when customer behaviour changes.", 6.2);
-  s.addNotes(`For forecasting, I compared four methods: a simple historical average, a moving average, Random Forest and XGBoost.
+  s.addNotes(`[About 1 minute 30 seconds]
 
-The most important discovery is this chart. In October 2017, customer behaviour changed suddenly. Before, an order had about six and a half items. After, it had only about one.
+Step one is predicting demand, and here I found the most interesting thing in the data.
 
-The orange line is a model trained only on the old data. It keeps predicting the old high level, so it is very wrong. The green line is my model, updated with the newest weeks. It follows the real demand.
+[Point to the black line] The black line is the real number of items ordered per week in the USA. Look at what happens in October 2017. It suddenly drops. Before October, one order had about six and a half items. After October, one order had only about one item. Customers were placing more orders, but each order was much smaller.
 
-Another surprise: a simple average was just as accurate as XGBoost. So I did not choose XGBoost just because it is more advanced.
+[Point to the orange line] The orange line is a model trained only on the old data. It keeps predicting the old high level. So it is very wrong.
 
-If asked "how did you measure accuracy?": I used MAE, RMSE and WAPE, which is the total error divided by the total demand. Lower is better.`);
+[Point to the green line] The green line is my selected model. I updated it with the most recent weeks, so it follows the real demand closely.
+
+[Point to "Surprise"] I also found a surprise. Before the change, a simple average was just as accurate as XGBoost. So I did not choose XGBoost just because it is more advanced. I chose the model that was actually more accurate.
+
+[Point to the takeaway] The lesson: a good forecast must notice when customer behaviour changes.`);
 
   // 9 Warehouse step
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Method" });
@@ -276,15 +301,17 @@ If asked "how did you measure accuracy?": I used MAE, RMSE and WAPE, which is th
   card(s, 8.1, 4.7, 2.25, 1.3); bigNum(s, 8.25, 4.75, 2.0, "6", "warehouses, USA ($18,497 / week)");
   card(s, 10.5, 4.7, 2.25, 1.3); bigNum(s, 10.65, 4.75, 2.0, "2", "warehouses, Puerto Rico ($2,510 / week)");
   takeaway(s, "Proven best answer, found in under one second.", 6.2);
-  s.addNotes(`Now step two: choosing warehouses. In the USA there are 37 possible locations. If you try every combination, there are more than 3 billion. That is too many to check one by one.
+  s.addNotes(`[About 1 minute 30 seconds]
 
-So I used an exact optimisation model called the Capacitated Facility Location Problem. In simple words: the computer adds up warehouse rent plus travel cost, and finds the cheapest plan. It follows two rules: every zone is served by exactly one warehouse, and no warehouse can be over-full.
+Step two is choosing the warehouses. In the USA I had 37 possible warehouse locations. If you try every possible combination, there are more than 3 billion of them, which is far too many to check one by one.
 
-The answer is six warehouses in the USA, for about 18,500 dollars a week, and two in Puerto Rico. The solver proved this is the best possible plan, and it took less than one second.
+So I used an exact optimisation model called the Capacitated Facility Location Problem. In simple words, the computer adds the warehouse rent and the delivery travel cost, and it finds the cheapest plan. It must follow two rules. Every zone is served by exactly one warehouse, and no warehouse can be filled beyond its capacity.
 
-On the map, each colour shows which warehouse serves which zones. The stars are the warehouses.
+[Point to the map] On the map, each star is a chosen warehouse, and each colour shows which zones it serves: New York, Chicago, two in California, Dallas and Florida.
 
-Note: costs like rent and travel cost per km are my assumptions, because the dataset does not have them.`);
+[Point to the numbers] The result is six warehouses in the USA, at about 18,500 dollars per week, and two warehouses in Puerto Rico. The solver proved that this is the best possible plan, and it found it in less than one second.
+
+One honest note: the rent, capacity and travel cost values are my assumptions, because the dataset does not contain them.`);
 
   // 11 GA
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Method" });
@@ -302,14 +329,20 @@ Note: costs like rent and travel cost per km are my assumptions, because the dat
   s.addImage({ ...(await fit(path.join(FIG, "ga_convergence_conus.png"), 7.05, 1.6, 5.7, 3.6)), altText: "GA convergence chart" });
   T(s, "Each line is one run. Cost drops quickly, then flattens near the best answer (dashed line).", { x: 7.1, y: 5.25, w: 5.6, h: 0.6, fontSize: 13, color: HEX.muted });
   takeaway(s, "GA got within 0.58% of the best plan in the USA and found the best plan in Puerto Rico, but it cannot prove it is the best.", 6.2);
-  s.addNotes(`I also used a Genetic Algorithm, which copies how nature evolves.
-It starts with 60 random warehouse plans. It keeps the cheaper ones, like survival of the fittest. It mixes two good plans to make a new plan, which is called crossover. And it makes small random changes, which is called mutation. Then it repeats, generation after generation.
+  s.addNotes(`[About 1 minute 15 seconds]
 
-On the right, each line is one run. The cost drops fast and then flattens close to the best answer, which is the dashed line.
+I also solved the same warehouse problem with a Genetic Algorithm, which copies how nature evolves.
 
-The result: in the USA the best GA run was only 0.58 percent more expensive than the exact answer. In Puerto Rico it found the exact best answer.
+[Point to the four steps] It works in four simple steps.
+One: start with 60 random warehouse plans.
+Two: select. Keep the cheaper plans, like survival of the fittest.
+Three: mix. Combine two good plans to make a new plan. This is called crossover.
+Four: change. Make small random changes, called mutation, so it can discover new ideas.
+Then it repeats, generation after generation.
 
-If asked "why use GA if the exact method is better?": because for very large problems an exact solver can become too slow. The GA still gives a good answer quickly. Here I could compare it with the proven best, so I know how good it is.`);
+[Point to the chart] Each line on the chart is one run. The cost drops quickly in the beginning and then becomes flat near the best answer, which is the dashed line.
+
+[Point to the takeaway] In the USA, the best Genetic Algorithm run was only 0.58 percent more expensive than the proven best plan. In Puerto Rico it found the exact best plan. But a Genetic Algorithm cannot prove that its answer is the best, and that is why I compared it with the exact method.`);
 
   // 12 Compare
   pres.addSection({ title: "Results" });
@@ -324,13 +357,19 @@ If asked "why use GA if the exact method is better?": because for very large pro
     T(s, [{ text: a, options: { bold: true, breakLine: true } }, { text: b, options: { color: HEX.muted } }], { x: 8.65, y: y + 0.05, w: 4.0, h: 0.7, fontSize: 15, valign: "middle" }); });
   T(s, "K-Means = simply put warehouses at the centres of customer groups.", { x: 8.35, y: 5.55, w: 4.4, h: 0.5, fontSize: 12, italic: true, color: HEX.muted });
   takeaway(s, "Smart optimisation is 38.6% cheaper than choosing warehouse places at random.", 6.2);
-  s.addNotes(`Here I compare four ways of choosing six warehouses, all judged with exactly the same cost and rules.
-The exact optimiser is the cheapest, and it is proven best.
-The Genetic Algorithm is only 0.58 percent more.
-K-Means, which just puts warehouses at the centre of customer groups, is 0.85 percent more.
-Random places are almost 63 percent more expensive.
+  s.addNotes(`[About 1 minute]
 
-So good optimisation saves about 38.6 percent compared with choosing at random. In Puerto Rico, K-Means was 28 percent worse, because it only looks at where customers are, not at costs or warehouse size.`);
+Here I compare four ways of choosing six warehouses in the USA. All four are judged with exactly the same costs and the same rules, so the comparison is fair.
+
+[Point to the bars, left to right]
+The exact optimiser is the cheapest, about 18,497 dollars per week, and it is proven best.
+The Genetic Algorithm is very close, only 0.58 percent more.
+K-Means, which simply places warehouses at the centre of customer groups, is 0.85 percent more.
+Random locations are almost 63 percent more expensive.
+
+[Point to the takeaway] So good optimisation is 38.6 percent cheaper than choosing warehouse locations at random.
+
+One more point: in Puerto Rico, K-Means was about 28 percent worse, because it looks only at where customers are, not at the costs or the warehouse size.`);
 
   // Routes combined
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
@@ -346,16 +385,20 @@ So good optimisation saves about 38.6 percent compared with choosing at random. 
   T(s, "Dallas example: nearest neighbour (left) uses 2 vans but one route is 6,607 km, too long. GLS (right) uses 4 vans and every route is within the limit. Puerto Rico: all methods give 7 vans, 174 km.",
     { x: 6.1, y: 5.5, w: 6.6, h: 0.65, fontSize: 12, color: HEX.muted });
   takeaway(s, "Fewer vans is not better if the routes break the rules. Solved with Google OR-Tools.", 6.28);
-  s.addNotes(`Step three is delivery routes, which is the Capacitated Vehicle Routing Problem. For each warehouse I plan which van visits which zones and in which order. Each van carries limited parcels and cannot drive too far.
+  s.addNotes(`[About 1 minute 30 seconds]
 
-I compared three methods in Google OR-Tools.
-Nearest neighbour: always drive to the closest next stop. It uses only 13 vans, but five routes are too long, so it is not a valid plan.
-Standard local search: valid, 31,647 km.
-Guided Local Search: the best valid plan, 16 vans and 31,610 km per week. When it gets stuck, it adds penalties to bad road links so it can try new routes.
+Step three is delivery routes. This is called the Capacitated Vehicle Routing Problem. For each warehouse I plan which van visits which zones, and in which order.
 
-The Dallas picture shows it: nearest neighbour has one route of over 6,600 km; GLS splits the work over four vans.
+[Point to "The rules"] The rules are simple. Every van starts and ends at its warehouse. A van can carry only a limited number of parcels and can drive only a limited distance. And every zone must be visited.
 
-Distances are straight lines times 1.2, not real roads.`);
+[Point to the three cards] I compared three methods in Google OR-Tools.
+Nearest neighbour always drives to the closest next stop. It uses only 13 vans, but five of its routes are longer than allowed, so it is not a valid plan.
+The standard local search gives a valid plan of 31,647 km.
+Guided Local Search gives the best valid plan: 16 vans and 31,610 km per week. When it gets stuck, it adds a penalty to bad road links, so it is pushed to try new routes.
+
+[Point to the Dallas picture] Here is Dallas. On the left, nearest neighbour uses two vans, but one route is over 6,600 km, which is far too long. On the right, Guided Local Search uses four vans, and every route stays within the limit.
+
+[Point to the takeaway] So fewer vans is not better if the routes break the rules.`);
 
   // 15 Forecast helps?
   s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
@@ -371,13 +414,17 @@ Distances are straight lines times 1.2, not real roads.`);
   bigNum(s, 7.15, 2.85, 5.3, "21.6% more costly", "plan from the forecast vs plan from old history", HEX.coral);
   T(s, bullets(["The forecast of items was 20% too high", "So the plan opened a third warehouse that was not needed"]), { x: 7.15, y: 4.05, w: 5.4, h: 1.5, fontSize: 15, paraSpaceAfter: 5 });
   takeaway(s, "Forecasting helps when the forecast is accurate. I report both results honestly.", 6.0);
-  s.addNotes(`This is my main experiment. I made warehouse plans in October 2017 using two inputs: my forecast, and old historical demand. Then I checked the real cost over the next 13 weeks.
+  s.addNotes(`[About 1 minute 15 seconds]
 
-In the USA, the forecast plan was 29.5 percent cheaper. The old history still had the high demand from before the change, so it opened 12 warehouses, which was too many. The forecast plan opened six, and was only 0.4 percent above a perfect plan made with full knowledge of the future.
+This is my main experiment. I asked: does forecasting really help?
 
-In Puerto Rico, the result was the opposite. The forecast of items was about 20 percent too high, because the first week after the change still had large orders. So the plan opened an extra warehouse and cost 21.6 percent more.
+I made two warehouse plans in October 2017. One plan used my forecast. The other plan used old historical demand. Then I checked the real cost of each plan over the next 13 weeks.
 
-I show both results honestly. The lesson: forecasting helps only when the forecast is accurate.`);
+[Point to the green card] In the USA, the answer is yes. The forecast plan was 29.5 percent cheaper. The old history still contained the high demand from before October, so that plan opened 12 warehouses, which was too many. The forecast plan opened six, and it was only 0.4 percent more costly than a perfect plan made with full knowledge of the future.
+
+[Point to the orange card] In Puerto Rico, the answer is no. The forecast of items was about 20 percent too high, because the first week after the change still had large orders. So the plan opened a third warehouse that was not needed, and it cost 21.6 percent more.
+
+[Point to the takeaway] I report both results honestly. The lesson is: forecasting helps only when the forecast is accurate.`);
 
   // Conclusion + thanks
   pres.addSection({ title: "Conclusion" });
@@ -395,21 +442,40 @@ I show both results honestly. The lesson: forecasting helps only when the foreca
   takeaway(s, "Limits: costs are my assumptions and distances are straight-line × 1.2, so results compare methods, not real savings.", 5.15, true);
   T(s, "Thank you! Questions are welcome.", { x: 0.6, y: 5.9, w: 7.5, h: 0.6, fontSize: 26, bold: true, color: "FFFFFF", valign: "middle" });
   T(s, [{ text: "github.com/cmsoftx/Optimization", options: { hyperlink: { url: "https://github.com/cmsoftx/Optimization" }, color: "6FC3B5" } }], { x: 8.3, y: 5.9, w: 4.45, h: 0.6, fontSize: 15, align: "right", valign: "middle" });
-  s.addNotes(`To conclude, four things to remember.
-One: demand changed suddenly in October 2017, and simple updated models worked as well as XGBoost.
-Two: the best plan is six warehouses in the USA and two in Puerto Rico. It is proven best and 38.6 percent cheaper than random places.
-Three: the Genetic Algorithm came within 0.58 percent of the best, so it is a strong method when exact solving is too slow.
-Four: Guided Local Search gave valid routes with 16 vans and about 31,600 km per week.
+  s.addNotes(`[About 1 minute, then questions]
 
-To be honest about limits: the costs and sizes are my assumptions, and distances are straight lines times 1.2. So the results compare methods fairly; they are not real company savings.
+To conclude, here are four things to remember.
 
-Thank you. I am happy to answer questions.
+[Point to each card]
+Forecasting: customer behaviour changed suddenly in October 2017, and simple updated models worked as well as XGBoost.
+Warehouses: the best plan is six warehouses in the USA and two in Puerto Rico. It is proven best and 38.6 percent cheaper than random locations.
+Genetic Algorithm: it came within 0.58 percent of the best plan, so it is a strong method when exact solving becomes too slow.
+Routes: Guided Local Search gave valid routes with 16 vans and about 31,600 km per week.
 
-Easy answers to common questions:
-Q: What is the CFLP? A: A model that chooses which warehouses to open and which zones each one serves, at the lowest cost, without any warehouse going over its size.
-Q: Why not only the Genetic Algorithm? A: The exact method was fast here and gives a proven best answer. I used the GA to compare.
-Q: What is Guided Local Search? A: It keeps improving routes, and when stuck it penalises bad road links to try new routes.
-Q: Are the savings real? A: No, the costs are assumptions. The results compare methods fairly under the same rules.`);
+[Point to the takeaway] I also want to be honest about the limits. The costs and capacities are my assumptions, and distances are straight lines multiplied by 1.2, not real road distances. So these results compare the methods fairly, but they are not real company savings.
+
+In future, I would like to use real road distances, add delivery time windows, and plan warehouses and routes together.
+
+Thank you for listening. I am happy to answer your questions.
+
+---- If the professor asks ----
+Q: What is the CFLP?
+A: The Capacitated Facility Location Problem. It chooses which warehouses to open and which zones each one serves, at the lowest cost, without any warehouse going over its capacity.
+
+Q: Why use a Genetic Algorithm if the exact method is better?
+A: For very large problems an exact solver can become too slow. The GA still gives a good answer. Here I could compare it with the proven best, so I know it is only 0.58 percent away.
+
+Q: What is Guided Local Search?
+A: It keeps improving the routes. When it gets stuck, it adds penalties to bad road links so it is forced to try new routes.
+
+Q: Why did XGBoost not win?
+A: The weekly demand per zone is very noisy, with many zeros, so there is little pattern to learn. After October 2017 the old pattern also stopped being true.
+
+Q: How did you measure forecast accuracy?
+A: With MAE, RMSE and WAPE. WAPE is the total error divided by the total demand. Lower is better.
+
+Q: Are the savings real?
+A: No. The costs are assumptions, so the results are fair comparisons between methods under the same rules, not real company savings.`);
 
   await pres.writeFile({ fileName: OUTFILE });
   await applyTheme(OUTFILE, THEME);
